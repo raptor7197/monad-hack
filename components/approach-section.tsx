@@ -1,8 +1,5 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import gsap from "gsap";
-
 const steps = [
   {
     num: "1",
@@ -22,24 +19,9 @@ const steps = [
 ];
 
 export function ApproachSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(containerRef.current?.querySelectorAll(".approach-card") || [], {
-        opacity: 0,
-        y: 30,
-        stagger: 0.15,
-        duration: 0.7,
-        ease: "power2.out",
-      });
-    }, containerRef);
-    return () => ctx.revert();
-  }, []);
-
   return (
     <section id="approach" aria-labelledby="approach-heading" className="w-full border-b border-border bg-bg py-16 md:py-24">
-      <div ref={containerRef} className="mx-auto max-w-[1440px] px-6 md:px-16">
+      <div className="mx-auto max-w-[1440px] px-6 md:px-16">
         <div className="mb-14 text-center">
           <h2
             id="approach-heading"

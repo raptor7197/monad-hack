@@ -168,23 +168,11 @@ export function SiteHeader() {
         </nav>
 
         {/* Right actions */}
-        <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-2.5 shrink-0">
-          <div className="hidden lg:flex items-center gap-2 rounded-full border border-border px-3 py-1.5 font-mono text-xs text-muted whitespace-nowrap">
-            <span className={`h-2 w-2 rounded-full ${isLive ? "bg-safe pulse-dot" : "bg-warn"}`} />
-            <span>{isLive ? "MONAD TESTNET" : "DEMO PREVIEW"}</span>
+        <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 shrink-0">
+          <div className="hidden sm:flex">
+            <ThemeToggle />
           </div>
-
-          <ThemeToggle />
-
-          <Link
-            href="/proposals/1"
-            className="hidden md:inline-flex items-center justify-center font-display font-extrabold text-xs uppercase px-4 py-2 border border-border hover:border-brand rounded-full text-muted hover:text-ink transition-colors whitespace-nowrap"
-          >
-            TRY DEMO →
-          </Link>
-
           <WalletButton />
-
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
