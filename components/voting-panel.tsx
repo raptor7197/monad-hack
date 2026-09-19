@@ -40,36 +40,36 @@ export function ProposalTally({ slot }: { slot: number }) {
   const exists = p && p.snapshot > 0;
 
   return (
-    <Card>
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold">Onchain tally</h2>
-        {isLive && exists && <Badge tone="cyan">Proposal #{onchainId(slot).toString()}</Badge>}
+    <Card className="rounded-3xl border-2 border-border bg-surface">
+      <div className="flex items-center justify-between border-b border-border pb-4">
+        <h2 className="font-display font-extrabold text-lg uppercase text-ink">ONCHAIN TALLY</h2>
+        {isLive && exists && <Badge tone="cyan">PROPOSAL #{onchainId(slot).toString()}</Badge>}
       </div>
       {!isLive ? (
-        <p className="mt-3 text-sm text-dim">Demo Preview: set contract addresses in .env.local to read live totals.</p>
+        <p className="mt-4 text-xs font-mono text-muted">Demo Preview: set contract addresses in .env.local to read live totals.</p>
       ) : isLoading ? (
         <Skeleton className="mt-4 h-16" />
       ) : isError ? (
-        <p className="mt-3 text-sm text-threat">Could not read the proposal from Monad RPC.</p>
+        <p className="mt-4 text-xs font-mono text-threat">Could not read proposal from Monad RPC.</p>
       ) : !exists ? (
-        <p className="mt-3 text-sm text-warn">Proposal not found onchain. Run the seed script (see RUNNING_LOCALLY.md).</p>
+        <p className="mt-4 text-xs font-mono text-warn">Proposal not found onchain. Run the seed script (see RUNNING_LOCALLY.md).</p>
       ) : (
         <>
-          <div className="mt-4 flex h-2.5 overflow-hidden rounded-full bg-threat/30">
-            <div className="bg-safe transition-all" style={{ width: `${pct}%` }} />
+          <div className="mt-6 flex h-3 overflow-hidden rounded-full bg-threat/30 border border-border">
+            <div className="bg-safe transition-all duration-500" style={{ width: `${pct}%` }} />
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+          <div className="mt-4 grid grid-cols-2 gap-4 text-sm border-b border-border pb-4">
             <div>
-              <p className="text-xs text-dim">FOR</p>
-              <p className="text-xl font-semibold tabular-nums text-safe">{fmt(forV)}</p>
+              <p className="font-mono text-xs text-muted">FOR</p>
+              <p className="font-display text-2xl font-extrabold tabular-nums text-safe">{fmt(forV)}</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-dim">AGAINST</p>
-              <p className="text-xl font-semibold tabular-nums text-threat">{fmt(against)}</p>
+              <p className="font-mono text-xs text-muted">AGAINST</p>
+              <p className="font-display text-2xl font-extrabold tabular-nums text-threat">{fmt(against)}</p>
             </div>
           </div>
-          <p className="mt-3 text-xs text-dim">
-            Snapshot {new Date(Number(p.snapshot) * 1000).toLocaleString()} · ends {new Date(Number(p.end) * 1000).toLocaleString()}
+          <p className="mt-3 font-mono text-[11px] text-muted">
+            Snapshot {new Date(Number(p.snapshot) * 1000).toLocaleTimeString()} · Ends {new Date(Number(p.end) * 1000).toLocaleTimeString()}
           </p>
         </>
       )}
@@ -147,55 +147,55 @@ export function VotingPanel({ slot }: { slot: number }) {
   const busy = isPending || receipt.isLoading;
 
   return (
-    <Card className="border-violet/30">
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold">Your vote</h2>
+    <Card className="rounded-3xl border-2 border-border bg-surface">
+      <div className="flex items-center justify-between border-b border-border pb-4">
+        <h2 className="font-display font-extrabold text-lg uppercase text-ink">YOUR VOTE</h2>
         {reason && <Badge tone={reason.tone}>{reason.label}</Badge>}
       </div>
 
       {!isLive ? (
-        <p className="mt-3 text-sm text-dim">Demo Preview mode. Deploy the contracts and set addresses to vote onchain.</p>
+        <p className="mt-4 text-xs font-mono text-muted">Demo Preview mode. Deploy contracts and set addresses to vote onchain.</p>
       ) : !isConnected ? (
-        <p className="mt-3 text-sm text-dim">Connect MetaMask (or log in) to check eligibility and vote.</p>
+        <p className="mt-4 text-xs font-mono text-muted">Connect wallet above to evaluate eligibility and cast vote.</p>
       ) : !onMonad ? (
-        <p className="mt-3 text-sm text-warn">Wrong network. Use the header button to switch to Monad Testnet (10143).</p>
+        <p className="mt-4 text-xs font-mono text-warn">Wrong network. Switch to Monad Testnet (10143).</p>
       ) : assess.isLoading ? (
         <Skeleton className="mt-4 h-24" />
       ) : assess.isError ? (
-        <p className="mt-3 text-sm text-threat">Eligibility check failed (RPC error). Retrying automatically.</p>
+        <p className="mt-4 text-xs font-mono text-threat">Eligibility check failed (RPC error). Retrying automatically.</p>
       ) : (
         <>
-          <dl className="mt-4 grid grid-cols-2 gap-3 rounded-xl bg-panel-2 p-3 text-sm">
+          <dl className="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-surface-2 p-4 text-sm border border-border">
             <div>
-              <dt className="text-xs text-dim">Snapshot voting power</dt>
-              <dd className="font-semibold tabular-nums">{fmt(weight)} ATLAS</dd>
+              <dt className="font-mono text-xs text-muted">Snapshot Power</dt>
+              <dd className="font-display text-lg font-bold tabular-nums text-ink">{fmt(weight)} ATLAS</dd>
             </div>
             <div>
-              <dt className="text-xs text-dim">Registry flag</dt>
-              <dd className="font-semibold">{riskIdx !== undefined ? RISKS[riskIdx] : "—"}</dd>
+              <dt className="font-mono text-xs text-muted">Registry Flag</dt>
+              <dd className="font-display text-lg font-bold text-ink">{riskIdx !== undefined ? RISKS[riskIdx] : "—"}</dd>
             </div>
           </dl>
-          {reason && <p className="mt-3 text-sm text-dim">{reason.detail}</p>}
+          {reason && <p className="mt-3 text-xs text-muted font-mono">{reason.detail}</p>}
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               onClick={() => vote(true)}
               disabled={busy}
-              className="rounded-xl bg-safe/15 py-3 font-semibold text-safe ring-1 ring-safe/40 hover:bg-safe/25 disabled:opacity-50"
+              className="font-display font-extrabold text-sm uppercase rounded-2xl bg-safe/15 py-3.5 text-safe ring-1 ring-safe/40 hover:bg-safe/25 disabled:opacity-50 transition-colors"
             >
-              Vote FOR
+              VOTE FOR
             </button>
             <button
               onClick={() => vote(false)}
               disabled={busy}
-              className="rounded-xl bg-threat/15 py-3 font-semibold text-threat ring-1 ring-threat/40 hover:bg-threat/25 disabled:opacity-50"
+              className="font-display font-extrabold text-sm uppercase rounded-2xl bg-threat/15 py-3.5 text-threat ring-1 ring-threat/40 hover:bg-threat/25 disabled:opacity-50 transition-colors"
             >
-              Vote AGAINST
+              VOTE AGAINST
             </button>
           </div>
           {!eligible && (
-            <p className="mt-2 text-xs text-dim">
-              Not eligible. Pressing a button simulates the vote and shows the contract&apos;s rejection; nothing is sent.
+            <p className="mt-3 text-xs text-muted font-mono leading-relaxed">
+              Not eligible. Pressing a button simulates the vote and displays the contract&apos;s revert; nothing is sent to the chain.
             </p>
           )}
         </>

@@ -105,20 +105,24 @@ export function ProtectionLog({ compact = false }: { compact?: boolean }) {
   const shown = compact ? filtered.slice(0, 6) : filtered;
 
   return (
-    <Card>
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <Card className="rounded-3xl border-2 border-border bg-surface">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-5">
         <div>
-          <h2 className="font-semibold">Protection log</h2>
-          <p className="text-xs text-dim">Contract events, preflight blocks from this browser and simulated monitor signals. Each row is labelled.</p>
+          <h2 className="font-display font-extrabold text-xl uppercase text-ink">PROTECTION AUDIT LOG</h2>
+          <p className="mt-1 text-xs text-muted font-mono">
+            Contract events, preflight blocks and simulated signals. Each row is labelled by source.
+          </p>
         </div>
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter log">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter log">
           {FILTERS.map((f) => (
             <button
               key={f}
               aria-pressed={filter === f}
               onClick={() => setFilter(f)}
-              className={`rounded-full px-3 py-1 text-xs ring-1 ring-inset ${
-                filter === f ? "bg-violet/20 text-violet-200 ring-violet/50" : "text-dim ring-line hover:text-ink"
+              className={`rounded-full px-3.5 py-1.5 font-display font-extrabold text-xs uppercase tracking-tight transition-all ${
+                filter === f
+                  ? "bg-brand text-brand-contrast shadow-sm"
+                  : "border border-border bg-surface-2 text-muted hover:text-ink hover:border-brand"
               }`}
             >
               {f}
@@ -127,25 +131,31 @@ export function ProtectionLog({ compact = false }: { compact?: boolean }) {
         </div>
       </div>
 
-      {events.isError && <p className="mt-3 text-xs text-threat">Could not load contract events from Monad RPC. Showing local and simulated entries.</p>}
+      {events.isError && (
+        <p className="mt-3 text-xs font-mono text-threat">
+          Could not load contract events from Monad RPC. Showing local and simulated entries.
+        </p>
+      )}
       {events.isLoading && isLive && <Skeleton className="mt-4 h-12" />}
 
-      <ol className="relative mt-5 space-y-4 border-l border-line pl-5">
-        {shown.length === 0 && <li className="text-sm text-dim">No entries for this filter yet.</li>}
+      <ol className="relative mt-6 space-y-4 border-l border-border pl-6">
+        {shown.length === 0 && <li className="text-sm font-mono text-muted">No entries for this filter yet.</li>}
         {shown.map((r) => (
           <li key={r.key} className="relative">
-            <span className={`absolute -left-[26px] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-panel ${dotOf[r.kind]}`} />
+            <span className={`absolute -left-[30px] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-surface ${dotOf[r.kind]}`} />
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-medium">{r.title}</p>
+              <p className="font-display font-bold text-sm uppercase text-ink">{r.title}</p>
               <Badge tone={toneOf[r.kind]}>{r.kind}</Badge>
-              <Badge tone={r.source === "Contract event" ? "cyan" : r.source === "Simulated monitor" ? "muted" : "violet"}>{r.source}</Badge>
+              <Badge tone={r.source === "Contract event" ? "cyan" : r.source === "Simulated monitor" ? "muted" : "violet"}>
+                {r.source}
+              </Badge>
             </div>
-            <p className="mt-0.5 text-xs text-dim">
+            <p className="mt-1 text-xs font-mono text-muted">
               {r.detail} · {r.when}
               {r.tx && (
                 <>
                   {" · "}
-                  <a href={txLink(r.tx)} target="_blank" rel="noreferrer" className="text-cyan underline">
+                  <a href={txLink(r.tx)} target="_blank" rel="noreferrer" className="text-brand underline hover:text-brand-hover">
                     tx ↗
                   </a>
                 </>
@@ -155,7 +165,7 @@ export function ProtectionLog({ compact = false }: { compact?: boolean }) {
         ))}
       </ol>
       {!compact && blocked.length > 0 && (
-        <button onClick={clearBlocked} className="mt-5 text-xs text-dim underline hover:text-ink">
+        <button onClick={clearBlocked} className="mt-6 font-mono text-xs text-muted underline hover:text-ink">
           Clear local blocked attempts
         </button>
       )}
