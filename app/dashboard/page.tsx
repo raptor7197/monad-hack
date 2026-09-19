@@ -18,10 +18,9 @@ export default function Dashboard() {
     <div className="w-full">
       <div className="mx-auto max-w-[1440px] px-6 md:px-16 py-12 md:py-16 space-y-10">
         <div>
-          <p className="font-mono text-xs uppercase text-brand tracking-widest mb-2">Audit & Forensics</p>
           <h1
-            className="font-display font-extrabold uppercase leading-none tracking-[-0.04em] text-ink"
-            style={{ fontSize: "clamp(32px, 5vw, 68px)" }}
+            className="font-display font-extrabold uppercase leading-none tracking-[-0.03em] text-ink"
+            style={{ fontSize: "clamp(32px, 5vw, 62px)" }}
           >
             PROTECTION DASHBOARD
           </h1>
@@ -40,7 +39,7 @@ export default function Dashboard() {
           <ProtectionLog />
           <Card className="h-fit">
             <h2 className="font-display font-extrabold text-lg uppercase text-ink">Deployed Contracts</h2>
-            <p className="mt-1 text-xs text-muted font-mono">Monad Testnet · Chain ID 10143</p>
+            <p className="mt-1 text-xs text-muted font-mono">Monad Testnet &middot; Chain ID 10143</p>
             <ul className="mt-6 space-y-4 divide-y divide-border">
               {contracts.map(([name, a]) => (
                 <li key={name} className="pt-4 first:pt-0">

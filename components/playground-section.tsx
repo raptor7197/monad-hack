@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import gsap from "gsap";
+import { Copy, Check } from "lucide-react";
 import { wallets } from "@/data/mock-data";
 import { reasonByCode } from "@/lib/contracts";
 
@@ -87,10 +88,9 @@ export function PlaygroundSection() {
     <section className="w-full border-b border-border bg-bg py-16 md:py-24">
       <div className="mx-auto max-w-[1440px] px-6 md:px-16">
         <div className="mb-12">
-          <p className="font-mono text-xs uppercase text-brand tracking-widest mb-2">Preflight Simulation</p>
           <h2
-            className="font-display font-extrabold uppercase leading-none tracking-[-0.04em] text-ink"
-            style={{ fontSize: "clamp(28px, 5vw, 68px)" }}
+            className="font-display font-extrabold uppercase leading-none tracking-[-0.03em] text-ink"
+            style={{ fontSize: "clamp(28px, 5vw, 62px)" }}
           >
             Connect to the voter profile
           </h2>
@@ -100,7 +100,6 @@ export function PlaygroundSection() {
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[380px_1fr]">
-          {/* Tab selector */}
           <div className="flex flex-col gap-3">
             {wallets.map((w) => {
               const active = w.key === selectedKey;
@@ -129,12 +128,10 @@ export function PlaygroundSection() {
             })}
           </div>
 
-          {/* Interactive Code / Result View */}
           <div
             ref={codeBoxRef}
-            className="flex flex-col rounded-3xl border border-border bg-surface overflow-hidden shadow-2xl"
+            className="flex flex-col rounded-2xl border border-border bg-surface overflow-hidden shadow-2xl"
           >
-            {/* Window header */}
             <div className="flex items-center justify-between border-b border-border bg-surface-2 px-6 py-4">
               <div className="flex items-center gap-3">
                 <span className="h-3 w-3 rounded-full bg-threat/70" />
@@ -149,19 +146,18 @@ export function PlaygroundSection() {
                 </span>
                 <button
                   onClick={copyCode}
-                  className="rounded-lg border border-border bg-surface px-3 py-1 font-mono text-xs text-muted hover:border-brand hover:text-ink transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1 font-mono text-xs text-muted hover:border-brand hover:text-ink transition-colors"
                 >
-                  {copied ? "COPIED ✓" : "COPY CODE"}
+                  {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  {copied ? "COPIED" : "COPY"}
                 </button>
               </div>
             </div>
 
-            {/* Code body */}
             <div className="p-6 overflow-x-auto font-mono text-xs md:text-sm leading-relaxed text-ink/90 bg-bg/60">
               <pre className="whitespace-pre">{sample.curl}</pre>
             </div>
 
-            {/* Status footer banner */}
             <div className="border-t border-border bg-surface-2 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono">
               <div>
                 <span className="text-muted">EXPECTED CONTRACT REVERT: </span>

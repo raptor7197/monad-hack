@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { dao, proposals, totals } from "@/data/mock-data";
 import { ProposalCard } from "@/components/proposal-card";
 import { ProtectionLog } from "@/components/protection-log";
@@ -16,13 +17,10 @@ import { SiteFooter } from "@/components/site-footer";
 export default function Home() {
   return (
     <div className="w-full">
-      {/* Dahl Hero with ticker */}
       <HeroSection />
 
-      {/* Brutalist Value Banner */}
       <BannerSection />
 
-      {/* Stats Counter Section */}
       <section className="w-full border-b border-border bg-surface-2 py-12 md:py-16">
         <div className="mx-auto max-w-[1440px] px-6 md:px-16">
           <div className="grid gap-6 sm:grid-cols-3">
@@ -48,27 +46,21 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Interactive Savings / Token Volume Simulator */}
       <CalculatorSection />
 
-      {/* Interactive Voter / Code Playground */}
       <PlaygroundSection />
 
-      {/* Contract Deployment Banner */}
       <ContractBar />
 
-      {/* Our Approach (1, 2, 3 numbered blocks) */}
       <ApproachSection />
 
-      {/* Proposals Grid */}
       <section id="proposals" className="w-full border-b border-border bg-surface py-16 md:py-24">
         <div className="mx-auto max-w-[1440px] px-6 md:px-16">
           <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
-              <p className="font-mono text-xs uppercase text-brand tracking-widest mb-2">Live Ballots</p>
               <h2
-                className="font-display font-extrabold uppercase leading-none tracking-[-0.04em] text-ink"
-                style={{ fontSize: "clamp(28px, 5vw, 68px)" }}
+                className="font-display font-extrabold uppercase leading-none tracking-[-0.03em] text-ink"
+                style={{ fontSize: "clamp(28px, 5vw, 62px)" }}
               >
                 ACTIVE PROPOSALS
               </h2>
@@ -86,27 +78,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Giant CTA Banner */}
       <CtaBanner />
 
-      {/* Protection Log Stream */}
       <section className="w-full border-b border-border bg-bg py-16 md:py-24">
         <div className="mx-auto max-w-[1440px] px-6 md:px-16">
           <div className="mb-8 flex items-center justify-between">
             <div>
-              <p className="font-mono text-xs uppercase text-brand tracking-widest mb-1">Live Audit Stream</p>
               <h2
                 className="font-display font-extrabold uppercase text-ink"
-                style={{ fontSize: "clamp(24px, 4vw, 52px)", letterSpacing: "-0.04em" }}
+                style={{ fontSize: "clamp(24px, 4vw, 48px)", letterSpacing: "-0.03em" }}
               >
                 PROTECTION LOG
               </h2>
             </div>
             <Link
               href="/dashboard"
-              className="font-display font-extrabold text-xs md:text-sm uppercase text-brand hover:underline"
+              className="inline-flex items-center gap-1 font-display font-extrabold text-xs md:text-sm uppercase text-brand hover:underline"
             >
-              FULL LOG →
+              FULL LOG <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
 
@@ -114,10 +103,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ Accordion */}
       <FaqSection />
 
-      {/* Giant Footer */}
       <SiteFooter />
     </div>
   );

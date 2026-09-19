@@ -3,14 +3,15 @@
 import { useRef } from "react";
 import Link from "next/link";
 import gsap from "gsap";
+import { ArrowUpRight } from "lucide-react";
 
 export function CtaBanner() {
   const btnRef = useRef<HTMLAnchorElement>(null);
-  const arrowRef = useRef<SVGSVGElement>(null);
+  const arrowRef = useRef<HTMLDivElement>(null);
 
   const handleMouseEnter = () => {
     if (arrowRef.current) {
-      gsap.to(arrowRef.current, { x: 8, y: -8, duration: 0.25, ease: "power2.out" });
+      gsap.to(arrowRef.current, { x: 4, y: -4, duration: 0.25, ease: "power2.out" });
     }
   };
 
@@ -32,23 +33,15 @@ export function CtaBanner() {
           style={{ minHeight: "clamp(80px, 12vw, 150px)" }}
         >
           <span
-            className="font-display font-extrabold uppercase leading-none tracking-[-0.05em] transition-colors"
+            className="font-display font-extrabold uppercase leading-none tracking-[-0.04em] transition-colors"
             style={{ fontSize: "clamp(24px, 5.5vw, 76px)" }}
           >
             PROTECT YOUR DAO
           </span>
 
-          <svg
-            ref={arrowRef}
-            aria-hidden="true"
-            className="h-8 w-8 md:h-16 md:w-16 shrink-0 transition-transform"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.8"
-          >
-            <path d="M7 17L17 7M17 7H7M17 7V17" />
-          </svg>
+          <div ref={arrowRef}>
+            <ArrowUpRight className="h-8 w-8 md:h-16 md:w-16 shrink-0" />
+          </div>
         </Link>
       </div>
     </section>

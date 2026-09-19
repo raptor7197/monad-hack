@@ -4,46 +4,73 @@
   --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: var(--font-syne), "Syne", sans-serif;
 
-  /* Custom Palette: Chartreuse, Palm Leaf, Grey Olive, Twilight Indigo, Jet Black */
-  --color-bg: #1b2d2a;
-  --color-surface: #223733;
-  --color-surface-2: #2b3a4a;
-  --color-surface-3: #414066;
-  --color-border: rgba(130, 129, 109, 0.35);
-  --color-border-strong: #82816d;
-  --color-ink: #f7f9ee;
-  --color-muted: #c8c79b;
+  /* Palette: Intense Cherry, Sunflower Gold, Black, Eggshell */
+  --color-cherry: #ad343e;
+  --color-cherry-hover: #962d35;
+  --color-gold: #f2af29;
+  --color-gold-hover: #dba01f;
+  --color-black: #000000;
+  --color-eggshell: #e0e0ce;
 
-  /* Palette mappings */
-  --color-chartreuse: #ceff1a;
-  --color-palm: #aaa95a;
-  --color-olive: #82816d;
-  --color-indigo: #414066;
-  --color-jet: #1b2d2a;
+  /* Semantic tokens — dark theme defaults (overridden by .light) */
+  --color-bg: #0a0a0a;
+  --color-surface: #141414;
+  --color-surface-2: #1e1e1e;
+  --color-surface-3: #2a2a2a;
+  --color-border: rgba(224, 224, 206, 0.12);
+  --color-border-strong: rgba(224, 224, 206, 0.25);
+  --color-ink: #e0e0ce;
+  --color-muted: #a8a898;
 
   /* Brand accents */
-  --color-brand: #ceff1a;
-  --color-brand-hover: #bde817;
-  --color-brand-contrast: #1b2d2a;
-  --color-accent: #aaa95a;
-  --color-accent-contrast: #1b2d2a;
-  --color-secondary-block: #414066;
+  --color-brand: #f2af29;
+  --color-brand-hover: #dba01f;
+  --color-brand-contrast: #0a0a0a;
+  --color-accent: #ad343e;
+  --color-accent-contrast: #ffffff;
+  --color-secondary-block: #1e1e1e;
 
   /* Status tokens */
-  --color-safe: #ceff1a;
-  --color-warn: #eab308;
-  --color-threat: #f43f5e;
+  --color-safe: #4ade80;
+  --color-warn: #f2af29;
+  --color-threat: #ad343e;
+
+  /* Semantic aliases */
   --color-panel: var(--color-surface);
   --color-panel-2: var(--color-surface-2);
   --color-line: var(--color-border);
   --color-dim: var(--color-muted);
   --color-violet: var(--color-brand);
-  --color-cyan: var(--color-palm);
+  --color-cyan: var(--color-accent);
 }
 
 html {
-  color-scheme: dark;
   scroll-behavior: smooth;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.light {
+  color-scheme: light;
+  --color-bg: #f5f5ec;
+  --color-surface: #ffffff;
+  --color-surface-2: #eeeee2;
+  --color-surface-3: #ddddd0;
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-border-strong: rgba(0, 0, 0, 0.2);
+  --color-ink: #111111;
+  --color-muted: #5a5a4e;
+  --color-brand: #ad343e;
+  --color-brand-hover: #962d35;
+  --color-brand-contrast: #ffffff;
+  --color-accent: #c78820;
+  --color-accent-contrast: #ffffff;
+  --color-secondary-block: #eeeee2;
+  --color-safe: #16a34a;
+  --color-warn: #c78820;
+  --color-threat: #ad343e;
 }
 
 body {
@@ -51,6 +78,7 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .font-display {
@@ -63,18 +91,33 @@ body {
   border-radius: 6px;
 }
 
-.grad-text {
-  background: linear-gradient(90deg, #f7f9ee, #ceff1a 50%, #aaa95a);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+::selection {
+  background: var(--color-brand);
+  color: var(--color-brand-contrast);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
 }
 
 .btn-primary {
   background: var(--color-brand);
   color: var(--color-brand-contrast);
   font-weight: 800;
-  box-shadow: 0 4px 18px 0 rgba(206, 255, 26, 0.28);
+  box-shadow: 0 4px 18px 0 rgba(242, 175, 41, 0.2);
+}
+html.light .btn-primary {
+  box-shadow: 0 4px 18px 0 rgba(173, 52, 62, 0.18);
 }
 .btn-primary:hover:not(:disabled) {
   background: var(--color-brand-hover);
@@ -82,12 +125,8 @@ body {
 }
 
 @keyframes marquee-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 .animate-marquee {

@@ -41,11 +41,10 @@ export function ApproachSection() {
     <section id="approach" aria-labelledby="approach-heading" className="w-full border-b border-border bg-bg py-16 md:py-24">
       <div ref={containerRef} className="mx-auto max-w-[1440px] px-6 md:px-16">
         <div className="mb-14 text-center">
-          <p className="font-mono text-xs uppercase text-brand tracking-widest mb-2">Architecture</p>
           <h2
             id="approach-heading"
-            className="font-display font-extrabold uppercase leading-[0.8] tracking-[-0.05em] text-ink"
-            style={{ fontSize: "clamp(32px, 6vw, 84px)" }}
+            className="font-display font-extrabold uppercase leading-[0.9] tracking-[-0.04em] text-ink"
+            style={{ fontSize: "clamp(32px, 6vw, 76px)" }}
           >
             OUR APPROACH
           </h2>
@@ -55,20 +54,18 @@ export function ApproachSection() {
           {steps.map((step) => (
             <div
               key={step.num}
-              className="approach-card group flex flex-col md:flex-row items-stretch rounded-3xl border border-border bg-surface overflow-hidden transition-all duration-300 hover:border-brand"
+              className="approach-card group flex flex-col md:flex-row items-stretch rounded-2xl border border-border bg-surface overflow-hidden transition-all duration-300 hover:border-brand/50"
             >
-              {/* Huge Number Block */}
-              <div className="flex items-center justify-center bg-surface-2 p-8 md:p-12 md:w-56 shrink-0 border-b md:border-b-0 md:border-r border-border group-hover:bg-brand/10 transition-colors">
+              <div className="flex items-center justify-center bg-surface-2 p-8 md:p-12 md:w-56 shrink-0 border-b md:border-b-0 md:border-r border-border group-hover:bg-brand/5 transition-colors">
                 <span className="font-display font-extrabold text-6xl md:text-8xl text-brand leading-none">
                   {step.num}
                 </span>
               </div>
 
-              {/* Text Content */}
               <div className="flex flex-col justify-center p-6 md:p-10 flex-1">
                 <h3
                   className="font-display font-extrabold uppercase text-ink leading-tight"
-                  style={{ fontSize: "clamp(22px, 3vw, 36px)", letterSpacing: "-0.04em" }}
+                  style={{ fontSize: "clamp(20px, 3vw, 32px)", letterSpacing: "-0.03em" }}
                 >
                   {step.title}
                 </h3>

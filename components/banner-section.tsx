@@ -23,8 +23,8 @@ export function BannerSection() {
     <section className="w-full border-b border-border bg-bg py-16 md:py-24">
       <div ref={containerRef} className="mx-auto max-w-[1440px] px-6 md:px-16 text-center">
         <h2
-          className="mx-auto max-w-4xl font-display font-extrabold uppercase leading-[1.05] tracking-[-0.04em] text-ink"
-          style={{ fontSize: "clamp(26px, 4.5vw, 64px)" }}
+          className="mx-auto max-w-4xl font-display font-extrabold uppercase leading-[1.05] tracking-[-0.03em] text-ink"
+          style={{ fontSize: "clamp(24px, 4.5vw, 58px)" }}
         >
           Governance should be accessible, resilient, and free from flash-loan manipulation.
         </h2>

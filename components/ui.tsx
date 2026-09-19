@@ -19,7 +19,7 @@ export function Badge({ tone = "muted", children }: { tone?: keyof typeof tones;
 
 export function Card({ className = "", children }: { className?: string; children: React.ReactNode }) {
   return (
-    <section className={`rounded-2xl border border-border bg-surface p-6 backdrop-blur transition-all duration-200 ${className}`}>
+    <section className={`rounded-2xl border border-border bg-surface p-6 transition-all duration-200 ${className}`}>
       {children}
     </section>
   );

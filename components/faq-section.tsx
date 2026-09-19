@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import gsap from "gsap";
+import { ChevronDown } from "lucide-react";
 
 const faqs = [
   {
@@ -50,7 +51,7 @@ function FaqItem({ item, isOpen, onClick }: { item: (typeof faqs)[0]; isOpen: bo
       >
         <span
           className="font-display font-extrabold uppercase text-ink pr-6 group-hover:text-brand transition-colors"
-          style={{ fontSize: "clamp(20px, 2.5vw, 36px)", letterSpacing: "-0.03em" }}
+          style={{ fontSize: "clamp(18px, 2.5vw, 32px)", letterSpacing: "-0.03em" }}
         >
           {item.q}
         </span>
@@ -59,14 +60,12 @@ function FaqItem({ item, isOpen, onClick }: { item: (typeof faqs)[0]; isOpen: bo
           ref={arrowRef}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface-2 text-ink"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-            <path d="M19 9l-7 7-7-7" />
-          </svg>
+          <ChevronDown className="h-4 w-4" />
         </div>
       </button>
 
       <div ref={contentRef} className="overflow-hidden" style={{ height: 0, opacity: 0 }}>
-        <p className="pb-8 text-muted text-sm md:text-base leading-relaxed max-w-4xl font-normal">
+        <p className="pb-8 text-muted text-sm md:text-base leading-relaxed max-w-4xl">
           {item.a}
         </p>
       </div>
@@ -81,11 +80,10 @@ export function FaqSection() {
     <section id="faq" aria-labelledby="faq-heading" className="w-full border-b border-border bg-bg py-16 md:py-24">
       <div className="mx-auto max-w-[1440px] px-6 md:px-16">
         <div className="mb-12 text-center md:text-left">
-          <p className="font-mono text-xs uppercase text-brand tracking-widest mb-2">Answers</p>
           <h2
             id="faq-heading"
-            className="font-display font-extrabold uppercase leading-[0.8] tracking-[-0.05em] text-ink"
-            style={{ fontSize: "clamp(28px, 5.5vw, 80px)" }}
+            className="font-display font-extrabold uppercase leading-[0.9] tracking-[-0.04em] text-ink"
+            style={{ fontSize: "clamp(28px, 5.5vw, 72px)" }}
           >
             FREQUENTLY ASKED QUESTIONS
           </h2>

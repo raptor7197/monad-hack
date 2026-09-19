@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { proposals, timeline } from "@/data/mock-data";
 import { ProposalTally, VotingPanel } from "@/components/voting-panel";
 import { DemoWalletAssessments } from "@/components/risk-assessment";
@@ -31,7 +32,7 @@ export default async function ProposalPage({ params }: PageProps<"/proposals/[id
           href="/#proposals"
           className="inline-flex items-center gap-2 font-display font-extrabold text-xs uppercase text-muted hover:text-ink transition-colors"
         >
-          ← ALL PROPOSALS
+          <ArrowLeft className="h-3 w-3" /> ALL PROPOSALS
         </Link>
 
         <header className="border-b border-border pb-8">
@@ -44,8 +45,8 @@ export default async function ProposalPage({ params }: PageProps<"/proposals/[id
           </div>
 
           <h1
-            className="font-display font-extrabold uppercase leading-tight tracking-[-0.04em] text-ink"
-            style={{ fontSize: "clamp(28px, 4.5vw, 64px)" }}
+            className="font-display font-extrabold uppercase leading-tight tracking-[-0.03em] text-ink"
+            style={{ fontSize: "clamp(28px, 4.5vw, 58px)" }}
           >
             {p.title}
           </h1>
@@ -69,7 +70,7 @@ export default async function ProposalPage({ params }: PageProps<"/proposals/[id
                   {events.map((e) => (
                     <li key={e.id} className="relative text-sm">
                       <span className={`absolute -left-[30px] top-1.5 h-2.5 w-2.5 rounded-full ${dot[e.kind]}`} />
-                      <span className="font-mono text-xs text-muted">{e.at}</span> ·{" "}
+                      <span className="font-mono text-xs text-muted">{e.at}</span> &middot;{" "}
                       <span className="font-bold text-ink">{e.wallet}</span>
                       <p className="mt-1 text-muted text-xs md:text-sm">{e.text}</p>
                     </li>
