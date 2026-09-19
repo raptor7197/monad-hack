@@ -4,9 +4,18 @@
 > Onchain governance protection for Monad Testnet. FlipGuard blocks last-minute voting power grabs before they can swing a proposal.
 
 **Live Application:** [https://flipguard.younix.xyz/](https://flipguard.younix.xyz/)  
-**Network:** Monad Testnet (Chain ID `10143`)
+**Network:** Monad Testnet (Chain ID `10143`)  
+**Socials:** [<img src="https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white" height="20" alt="X"/>](https://x.com/justvamsi7/status/2101266870963999227?s=20) [<img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" height="20" alt="LinkedIn"/>](https://lnkd.in/p/gki3dQaS) [<img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" height="20" alt="Instagram"/>](https://www.instagram.com/reel/DdeAJIXgVG1/?stkn=amd0ZXU4cjU2c3V4)
 
 ![FlipGuard Platform Preview](public/hero-preview.png)
+
+## demo video
+
+https://github.com/raptor7197/monad-hack/assets/demo-video
+
+<video src="https://github.com/raptor7197/monad-hack/raw/main/public/FlipGuard%20Demo.mp4" controls width="100%"></video>
+
+> *If video fails to play inline, download or watch [FlipGuard Demo.mp4](public/FlipGuard%20Demo.mp4).*
 
 ## the problem
 
