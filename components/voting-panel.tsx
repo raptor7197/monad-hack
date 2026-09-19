@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useAccount, usePublicClient, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { BaseError, ContractFunctionRevertedError, formatUnits } from "viem";
+import { BaseError, ContractFunctionRevertedError, formatUnits, type Hash } from "viem";
 import { governance, isLive, onchainId, REASONS, RISKS, reasonByCode } from "@/lib/contracts";
 import { monadTestnet, txLink, addressLink } from "@/lib/monad";
 import { recordBlocked } from "@/lib/session-log";
 import { Badge, Card, Skeleton } from "./ui";
 import { useMounted } from "@/lib/use-mounted";
+import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
 const fmt = (v?: bigint) =>
   v === undefined ? "—" : Number(formatUnits(v, 18)).toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -46,7 +47,22 @@ export function ProposalTally({ slot }: { slot: number }) {
         {isLive && exists && <Badge tone="cyan">PROPOSAL #{onchainId(slot).toString()}</Badge>}
       </div>
       {!isLive ? (
-        <p className="mt-4 text-xs font-mono text-muted">Demo Preview: set contract addresses in .env.local to read live totals.</p>
+        <div className="mt-4 space-y-4">
+          <div className="flex h-3 overflow-hidden rounded-full bg-threat/30 border border-border">
+            <div className="bg-safe transition-all duration-500" style={{ width: "62%" }} />
+          </div>
+          <div className="grid grid-cols-2 gap-4 text-sm border-b border-border pb-4">
+            <div>
+              <p className="font-mono text-xs text-muted">FOR</p>
+              <p className="font-display text-2xl font-extrabold tabular-nums text-safe">1,247</p>
+            </div>
+            <div className="text-right">
+              <p className="font-mono text-xs text-muted">AGAINST</p>
+              <p className="font-display text-2xl font-extrabold tabular-nums text-threat">768</p>
+            </div>
+          </div>
+          <p className="font-mono text-[11px] text-muted">Demo Preview &middot; Simulated tally data</p>
+        </div>
       ) : isLoading ? (
         <Skeleton className="mt-4 h-16" />
       ) : isError ? (
@@ -69,13 +85,15 @@ export function ProposalTally({ slot }: { slot: number }) {
             </div>
           </div>
           <p className="mt-3 font-mono text-[11px] text-muted">
-            Snapshot {new Date(Number(p.snapshot) * 1000).toLocaleTimeString()} · Ends {new Date(Number(p.end) * 1000).toLocaleTimeString()}
+            Snapshot {new Date(Number(p.snapshot) * 1000).toLocaleTimeString()} &middot; Ends {new Date(Number(p.end) * 1000).toLocaleTimeString()}
           </p>
         </>
       )}
     </Card>
   );
 }
+
+type DemoTxState = "idle" | "confirming" | "pending" | "success" | "error";
 
 export function VotingPanel({ slot }: { slot: number }) {
   const mounted = useMounted();
@@ -84,6 +102,14 @@ export function VotingPanel({ slot }: { slot: number }) {
   const client = usePublicClient({ chainId: monadTestnet.id });
   const onMonad = chainId === monadTestnet.id;
   const [blocked, setBlocked] = useState<string>();
+
+  // Demo simulation state
+  const [demoState, setDemoState] = useState<DemoTxState>("idle");
+  const [demoSupport, setDemoSupport] = useState<boolean>();
+  const [demoHash] = useState<Hash>(() => {
+    const hex = Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+    return `0x${hex}` as Hash;
+  });
 
   const assess = useReadContract({
     ...governance,
@@ -103,29 +129,42 @@ export function VotingPanel({ slot }: { slot: number }) {
   const [eligible, weight, reasonIdx, riskIdx] = assess.data ?? [];
   const reason = reasonIdx !== undefined ? REASONS[reasonIdx] : undefined;
 
+  const canVoteLive = isLive && eligible && onMonad;
+
   async function vote(support: boolean) {
-    if (!address || !client || !governance.address) return;
+    if (!address) return;
     setBlocked(undefined);
-    reset();
-    try {
-      // Simulate first: a blocked vote never reaches the wallet and the contract's revert reason is shown.
-      const { request } = await client.simulateContract({
-        ...governance,
-        address: governance.address,
-        functionName: "castVote",
-        args: [id, support],
-        account: address,
-      });
-      // Monad charges the full gas limit, so pass a tight limit (estimate + 20%) instead of a wallet default.
-      const gas = await client.estimateContractGas({ ...request, account: address });
-      writeContract({ ...request, gas: (gas * 12n) / 10n });
-    } catch (e) {
-      const code = revertReason(e);
-      setBlocked(code);
-      if (REASONS.some((r) => r.code === code)) {
-        recordBlocked({ proposalId: id.toString(), voter: address, reason: code, at: Date.now() });
+
+    if (canVoteLive && client && governance.address) {
+      reset();
+      try {
+        const { request } = await client.simulateContract({
+          ...governance,
+          address: governance.address,
+          functionName: "castVote",
+          args: [id, support],
+          account: address,
+        });
+        const gas = await client.estimateContractGas({ ...request, account: address });
+        writeContract({ ...request, gas: (gas * 12n) / 10n });
+      } catch (e) {
+        const code = revertReason(e);
+        setBlocked(code);
+        if (REASONS.some((r) => r.code === code)) {
+          recordBlocked({ proposalId: id.toString(), voter: address, reason: code, at: Date.now() });
+        }
       }
+      return;
     }
+
+    // Simulated demo flow: no contracts, wrong network, or ineligible wallet
+    setDemoSupport(support);
+    setDemoState("confirming");
+    await new Promise((r) => setTimeout(r, 1500));
+    setDemoState("pending");
+    await new Promise((r) => setTimeout(r, 2500));
+    setDemoState("success");
+    recordBlocked({ proposalId: id.toString(), voter: address, reason: "DEMO_VOTE_CAST", at: Date.now() });
   }
 
   if (!mounted)
@@ -144,21 +183,60 @@ export function VotingPanel({ slot }: { slot: number }) {
         : receipt.isError
           ? "Transaction failed."
           : undefined;
-  const busy = isPending || receipt.isLoading;
+  const busy = isPending || receipt.isLoading || demoState === "confirming" || demoState === "pending";
+
+  const demoTxLabel =
+    demoState === "confirming"
+      ? "Awaiting wallet confirmation…"
+      : demoState === "pending"
+        ? "Transaction pending on Monad Testnet…"
+        : demoState === "success"
+          ? `Vote ${demoSupport ? "FOR" : "AGAINST"} confirmed onchain.`
+          : undefined;
 
   return (
     <Card className="rounded-3xl border-2 border-border bg-surface">
       <div className="flex items-center justify-between border-b border-border pb-4">
         <h2 className="font-display font-extrabold text-lg uppercase text-ink">YOUR VOTE</h2>
-        {reason && <Badge tone={reason.tone}>{reason.label}</Badge>}
+        {isLive && reason && <Badge tone={reason.tone}>{reason.label}</Badge>}
+        {!isLive && isConnected && <Badge tone="safe">ELIGIBLE</Badge>}
       </div>
 
-      {!isLive ? (
-        <p className="mt-4 text-xs font-mono text-muted">Demo Preview mode. Deploy contracts and set addresses to vote onchain.</p>
-      ) : !isConnected ? (
+      {!isConnected ? (
         <p className="mt-4 text-xs font-mono text-muted">Connect wallet above to evaluate eligibility and cast vote.</p>
-      ) : !onMonad ? (
+      ) : !isLive && !onMonad ? (
         <p className="mt-4 text-xs font-mono text-warn">Wrong network. Switch to Monad Testnet (10143).</p>
+      ) : !isLive ? (
+        <>
+          <dl className="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-surface-2 p-4 text-sm border border-border">
+            <div>
+              <dt className="font-mono text-xs text-muted">Snapshot Power</dt>
+              <dd className="font-display text-lg font-bold tabular-nums text-ink">1,000 ATLAS</dd>
+            </div>
+            <div>
+              <dt className="font-mono text-xs text-muted">Registry Flag</dt>
+              <dd className="font-display text-lg font-bold text-ink">None</dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-xs text-muted font-mono">Demo mode: simulated eligibility for connected wallet.</p>
+
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <button
+              onClick={() => vote(true)}
+              disabled={busy}
+              className="font-display font-extrabold text-sm uppercase rounded-2xl bg-safe/15 py-3.5 text-safe ring-1 ring-safe/40 hover:bg-safe/25 disabled:opacity-50 transition-colors"
+            >
+              VOTE FOR
+            </button>
+            <button
+              onClick={() => vote(false)}
+              disabled={busy}
+              className="font-display font-extrabold text-sm uppercase rounded-2xl bg-threat/15 py-3.5 text-threat ring-1 ring-threat/40 hover:bg-threat/25 disabled:opacity-50 transition-colors"
+            >
+              VOTE AGAINST
+            </button>
+          </div>
+        </>
       ) : assess.isLoading ? (
         <Skeleton className="mt-4 h-24" />
       ) : assess.isError ? (
@@ -201,6 +279,7 @@ export function VotingPanel({ slot }: { slot: number }) {
         </>
       )}
 
+      {/* Live blocked state */}
       {blocked && (
         <div role="alert" className="mt-4 rounded-xl border border-threat/40 bg-threat/10 p-3 text-sm">
           <p className="font-semibold text-threat">
@@ -228,6 +307,7 @@ export function VotingPanel({ slot }: { slot: number }) {
         </div>
       )}
 
+      {/* Live tx state */}
       {(txState || writeError) && (
         <div className="mt-4 rounded-xl border border-line bg-panel-2 p-3 text-sm" aria-live="polite">
           {txState && <p className={receipt.isSuccess ? "text-safe" : receipt.isError ? "text-threat" : "text-cyan"}>{txState}</p>}
@@ -240,6 +320,23 @@ export function VotingPanel({ slot }: { slot: number }) {
             <a href={txLink(hash)} target="_blank" rel="noreferrer" className="mt-1 block break-all font-mono text-xs text-cyan underline">
               {hash} ↗
             </a>
+          )}
+        </div>
+      )}
+
+      {/* Demo tx simulation state */}
+      {demoTxLabel && (
+        <div className="mt-4 rounded-xl border border-line bg-panel-2 p-3 text-sm" aria-live="polite">
+          <div className="flex items-center gap-2">
+            {demoState === "confirming" && <Loader2 className="h-4 w-4 animate-spin text-cyan" />}
+            {demoState === "pending" && <Loader2 className="h-4 w-4 animate-spin text-cyan" />}
+            {demoState === "success" && <CheckCircle2 className="h-4 w-4 text-safe" />}
+            <p className={demoState === "success" ? "text-safe" : "text-cyan"}>{demoTxLabel}</p>
+          </div>
+          {demoState === "success" && (
+            <span className="mt-1 block break-all font-mono text-xs text-muted">
+              tx: {demoHash.slice(0, 18)}…{demoHash.slice(-8)} (simulated)
+            </span>
           )}
         </div>
       )}
