@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
-    "@privy-io/react-auth": "^3.44.0",
+    "@privy-io/react-auth": "^3.6.1",
     "@privy-io/wagmi": "^4.0.17",
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
