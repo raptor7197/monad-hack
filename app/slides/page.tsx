@@ -79,7 +79,7 @@ export default function SlidesPage() {
     <ReactLenis root>
       <div className="w-full bg-bg text-ink relative selection:bg-brand selection:text-brand-contrast">
         {/* Floating Top Presentation Bar */}
-        <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-border bg-bg/85 backdrop-blur-md px-6 py-3.5">
+        <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-border bg-bg/90 backdrop-blur-md px-6 py-3.5">
           <div className="flex items-center gap-4">
             <Link
               href="/"
@@ -94,12 +94,12 @@ export default function SlidesPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="font-mono text-xs text-muted uppercase">
+            <span className="font-mono text-xs text-muted uppercase hidden sm:inline">
               USE ↓ / ↑ TO NAVIGATE
             </span>
             <Link
               href="/proposals/1"
-              className="font-display font-extrabold text-xs uppercase px-4 py-2 rounded-full bg-brand text-brand-contrast hover:bg-brand-hover transition-colors"
+              className="font-display font-extrabold text-xs uppercase px-4 py-2 rounded-full bg-brand text-brand-contrast hover:bg-brand-hover transition-colors whitespace-nowrap"
             >
               LIVE DEMO →
             </Link>
@@ -111,10 +111,10 @@ export default function SlidesPage() {
             ======================================================== */}
         <section
           id="slide-1"
-          className="relative min-h-screen w-full flex flex-col justify-between border-b border-border px-6 md:px-16 pt-24 pb-12 overflow-hidden"
+          className="relative min-h-screen w-full flex flex-col justify-between border-b border-border px-6 md:px-16 pt-28 pb-12 overflow-hidden bg-bg"
         >
           <div className="my-auto max-w-5xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5 font-mono text-xs uppercase text-brand mb-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5 font-mono text-xs uppercase text-brand mb-8 shadow-sm">
               <span className="h-2 w-2 rounded-full bg-brand pulse-dot" />
               SLIDE 01 · EXECUTIVE SUMMARY
             </div>
@@ -126,9 +126,7 @@ export default function SlidesPage() {
               FLIPGUARD
             </h1>
 
-            <p
-              className="mt-6 font-display font-bold uppercase text-brand tracking-tight text-xl sm:text-2xl md:text-4xl"
-            >
+            <p className="mt-6 font-display font-bold uppercase text-brand tracking-tight text-xl sm:text-2xl md:text-4xl">
               Fair votes. Stronger governance.
             </p>
 
@@ -151,25 +149,38 @@ export default function SlidesPage() {
           </div>
 
           <div className="flex items-center justify-between border-t border-border pt-6 font-mono text-xs text-muted">
-            <span>FlipGuard Slide Deck</span>
-            <span className="text-brand animate-bounce">Scroll Down ↓</span>
+            <span>FlipGuard Presentation</span>
+            <span className="text-brand animate-bounce">Scroll Down to Pillars Stack ↓</span>
           </div>
         </section>
 
         {/* ========================================================
-            SLIDE 2: The Problem (Full Page 100vh)
+            SLIDE 2: THE 5 PILLARS (All in one place, continuous scrolling)
+            ======================================================== */}
+        <section id="slide-pillars" className="relative w-full border-b border-border bg-bg">
+          {/* Clear fixed header height */}
+          <div className="h-[72px]" />
+          <StickyCard002
+            cards={deckCards}
+            headerTitle="5 PILLARS OF FLIPGUARD"
+            headerSubtitle="CONTINUOUS SCROLLING DEFENSE STACK"
+          />
+        </section>
+
+        {/* ========================================================
+            SLIDE 3: The Threat (Down below pillars)
             ======================================================== */}
         <section
-          id="slide-2"
-          className="relative min-h-screen w-full flex flex-col justify-between border-b border-border bg-surface px-6 md:px-16 py-24 overflow-hidden"
+          id="slide-threat"
+          className="relative min-h-screen w-full flex flex-col justify-between border-b border-border bg-surface px-6 md:px-16 pt-24 pb-28 overflow-hidden"
         >
           <div className="my-auto max-w-6xl">
             <p className="font-mono text-xs uppercase text-threat tracking-widest mb-3">
-              SLIDE 02 · THE ATTACK VECTOR
+              SLIDE 03 · THE ATTACK VECTOR
             </p>
             <h2
               className="font-display font-extrabold uppercase leading-[0.88] tracking-[-0.05em] text-ink"
-              style={{ fontSize: "clamp(36px, 6vw, 84px)" }}
+              style={{ fontSize: "clamp(34px, 5.5vw, 80px)" }}
             >
               THE FLASH-LOAN GOVERNANCE EXPLOIT
             </h2>
@@ -227,50 +238,27 @@ export default function SlidesPage() {
           </div>
 
           <div className="flex items-center justify-between border-t border-border pt-6 font-mono text-xs text-muted">
-            <span>Slide 02 / 05</span>
-            <span>Scroll Down to See the Defense Stack ↓</span>
+            <span>Slide 03 / 05</span>
+            <span>Scroll Down to Contract Logic ↓</span>
           </div>
         </section>
 
         {/* ========================================================
-            SLIDE 3: The Sticky Card Deck (Pinned ScrollTrigger Deck)
-            ======================================================== */}
-        <section id="slide-3" className="relative w-full border-b border-border bg-bg">
-          <div className="w-full text-center pt-16 pb-4">
-            <p className="font-mono text-xs uppercase text-brand tracking-widest mb-2">
-              SLIDE 03 · THE DEFENSE DECK
-            </p>
-            <h2
-              className="font-display font-extrabold uppercase leading-none tracking-[-0.05em] text-ink"
-              style={{ fontSize: "clamp(32px, 5.5vw, 76px)" }}
-            >
-              5 PILLARS OF FLIPGUARD
-            </h2>
-            <p className="mt-3 text-muted text-sm md:text-base font-mono">
-              Scroll down to peel through the interactive architecture stack
-            </p>
-          </div>
-
-          {/* StickyCard002 ScrollTrigger Component */}
-          <StickyCard002 cards={deckCards} />
-        </section>
-
-        {/* ========================================================
-            SLIDE 4: Architecture & Flow (Full Page 100vh)
+            SLIDE 4: Architecture & Flow (Down below)
             ======================================================== */}
         <section
-          id="slide-4"
-          className="relative min-h-screen w-full flex flex-col justify-between border-b border-border bg-surface px-6 md:px-16 py-24 overflow-hidden"
+          id="slide-logic"
+          className="relative min-h-screen w-full flex flex-col justify-between border-b border-border bg-bg px-6 md:px-16 pt-24 pb-28 overflow-hidden"
         >
           <div className="my-auto max-w-6xl">
-            <p className="font-mono text-xs uppercase text-accent tracking-widest mb-3">
-              SLIDE 04 · CONTRACT LOGIC
+            <p className="font-mono text-xs uppercase text-brand tracking-widest mb-3">
+              SLIDE 04 · ONCHAIN CONTRACT LOGIC
             </p>
             <h2
               className="font-display font-extrabold uppercase leading-[0.88] tracking-[-0.05em] text-ink"
-              style={{ fontSize: "clamp(36px, 6vw, 84px)" }}
+              style={{ fontSize: "clamp(34px, 5.5vw, 80px)" }}
             >
-              HOW THE CONTRACT GUARDS THE VOTE
+              HOW FLIPGUARD GUARDS THE VOTE
             </h2>
 
             <div className="mt-12 grid gap-6 md:grid-cols-4">
@@ -300,7 +288,7 @@ export default function SlidesPage() {
                   desc: "If an authorized monitor flagged the address for borrowing anomalies, castVote() reverts immediately.",
                 },
               ].map((s) => (
-                <div key={s.step} className="rounded-3xl border border-border bg-surface-2 p-6 flex flex-col justify-between">
+                <div key={s.step} className="rounded-3xl border border-border bg-surface-2 p-6 flex flex-col justify-between shadow-lg">
                   <div>
                     <span className="font-display font-extrabold text-2xl text-brand">{s.step}</span>
                     <h3 className="mt-2 font-display font-extrabold text-lg uppercase text-ink">{s.title}</h3>
@@ -319,16 +307,16 @@ export default function SlidesPage() {
 
           <div className="flex items-center justify-between border-t border-border pt-6 font-mono text-xs text-muted">
             <span>Slide 04 / 05</span>
-            <span>Scroll Down to Live Demo & Links ↓</span>
+            <span>Scroll Down to Deployment & Links ↓</span>
           </div>
         </section>
 
         {/* ========================================================
-            SLIDE 5: Conclusion & Live Monad Testnet (Full Page 100vh)
+            SLIDE 5: Production Readiness & Deployment
             ======================================================== */}
         <section
-          id="slide-5"
-          className="relative min-h-screen w-full flex flex-col justify-between bg-bg px-6 md:px-16 py-24 overflow-hidden"
+          id="slide-deployed"
+          className="relative min-h-screen w-full flex flex-col justify-between bg-surface px-6 md:px-16 pt-24 pb-28 overflow-hidden"
         >
           <div className="my-auto max-w-5xl">
             <p className="font-mono text-xs uppercase text-brand tracking-widest mb-3">
@@ -336,7 +324,7 @@ export default function SlidesPage() {
             </p>
             <h2
               className="font-display font-extrabold uppercase leading-[0.84] tracking-[-0.06em] text-ink"
-              style={{ fontSize: "clamp(40px, 8vw, 110px)" }}
+              style={{ fontSize: "clamp(38px, 7vw, 100px)" }}
             >
               DEPLOYED ON MONAD TESTNET
             </h2>
@@ -345,7 +333,7 @@ export default function SlidesPage() {
               Fully compiled, deployed, and verified with live mock DAO ballots, onchain tallies, and deterministic voter preflight simulations.
             </p>
 
-            <div className="mt-8 rounded-2xl border-2 border-border bg-surface-2 p-5 max-w-2xl">
+            <div className="mt-8 rounded-2xl border-2 border-border bg-surface-2 p-5 max-w-2xl shadow-xl">
               <p className="font-mono text-xs text-muted uppercase">CONTRACT ADDRESS (CHAIN ID 10143)</p>
               <p className="mt-1 font-mono text-sm md:text-base text-brand break-all select-all">{contractAddr}</p>
               <a
@@ -361,19 +349,19 @@ export default function SlidesPage() {
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
                 href="/proposals/1"
-                className="rounded-full bg-brand px-8 py-4 font-display font-extrabold text-sm md:text-base uppercase tracking-tight text-brand-contrast hover:bg-brand-hover transition-transform hover:-translate-y-1 shadow-2xl"
+                className="rounded-full bg-brand px-8 py-4 font-display font-extrabold text-sm md:text-base uppercase tracking-tight text-brand-contrast hover:bg-brand-hover transition-transform hover:-translate-y-1 shadow-2xl whitespace-nowrap"
               >
                 TRY LIVE PROPOSAL #1 →
               </Link>
               <Link
                 href="/dashboard"
-                className="rounded-full border border-border bg-surface-2 px-8 py-4 font-display font-extrabold text-sm md:text-base uppercase tracking-tight text-ink hover:border-brand transition-colors"
+                className="rounded-full border border-border bg-surface-2 px-8 py-4 font-display font-extrabold text-sm md:text-base uppercase tracking-tight text-ink hover:border-brand transition-colors shadow-md whitespace-nowrap"
               >
                 OPEN AUDIT DASHBOARD
               </Link>
               <Link
                 href="/"
-                className="rounded-full border border-border bg-surface px-8 py-4 font-display font-extrabold text-sm md:text-base uppercase tracking-tight text-muted hover:text-ink transition-colors"
+                className="rounded-full border border-border bg-surface px-8 py-4 font-display font-extrabold text-sm md:text-base uppercase tracking-tight text-muted hover:text-ink transition-colors whitespace-nowrap"
               >
                 HOME
               </Link>

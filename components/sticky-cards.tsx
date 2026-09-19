@@ -26,6 +26,8 @@ export interface StickyCard002Props {
   className?: string;
   containerClassName?: string;
   cardClassName?: string;
+  headerTitle?: string;
+  headerSubtitle?: string;
 }
 
 const StickyCard002 = ({
@@ -33,6 +35,8 @@ const StickyCard002 = ({
   className,
   containerClassName,
   cardClassName,
+  headerTitle = "5 PILLARS OF FLIPGUARD",
+  headerSubtitle = "CONTINUOUS SCROLLING DEFENSE STACK",
 }: StickyCard002Props) => {
   const container = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -53,14 +57,17 @@ const StickyCard002 = ({
         gsap.set(cardElements[i], { y: "100%", scale: 1, rotation: 0 });
       }
 
+      const stickyEl = container.current?.querySelector(".sticky-cards");
+      if (!stickyEl) return;
+
       const scrollTimeline = gsap.timeline({
         scrollTrigger: {
-          trigger: container.current ? container.current.querySelector(".sticky-cards") : ".sticky-cards",
-          start: "top top",
+          trigger: stickyEl,
+          start: "top 88px",
           end: () => `+=${window.innerHeight * (totalCards - 1)}`,
           pin: true,
-          scrub: 0.5,
           pinSpacing: true,
+          scrub: 0.6,
         },
       });
 
@@ -73,8 +80,9 @@ const StickyCard002 = ({
         scrollTimeline.to(
           currentCard,
           {
-            scale: 0.75,
-            rotation: (i % 2 === 0 ? 4 : -4),
+            scale: 0.85,
+            rotation: i % 2 === 0 ? 3 : -3,
+            opacity: 0.8,
             duration: 1,
             ease: "none",
           },
@@ -110,19 +118,34 @@ const StickyCard002 = ({
   );
 
   return (
-    <div className={cn("relative h-screen w-full", className)} ref={container}>
-      <div className="sticky-cards relative flex h-full w-full items-center justify-center overflow-hidden p-4 lg:p-8">
+    <div className={cn("relative w-full", className)} ref={container}>
+      <div className="sticky-cards relative flex min-h-screen h-screen w-full flex-col items-center justify-center overflow-hidden px-4 py-12 sm:px-6 lg:px-8 bg-bg">
+        {/* Pinned Title Header (stays in place as cards scroll continuously) */}
+        <div className="mb-4 text-center shrink-0">
+          <p className="font-mono text-xs uppercase text-brand tracking-widest">
+            {headerSubtitle}
+          </p>
+          <h2
+            className="font-display font-extrabold uppercase leading-none tracking-[-0.04em] text-ink mt-1"
+            style={{ fontSize: "clamp(24px, 4vw, 54px)" }}
+          >
+            {headerTitle}
+          </h2>
+        </div>
+
+        {/* Card Stacking Container */}
         <div
           className={cn(
-            "relative h-[85vh] w-full max-w-sm overflow-hidden rounded-3xl sm:max-w-md md:max-w-xl lg:max-w-3xl xl:max-w-4xl shadow-2xl",
+            "relative h-[68vh] sm:h-[72vh] md:h-[74vh] w-full max-w-sm sm:max-w-md md:max-w-xl lg:max-w-3xl xl:max-w-4xl shadow-2xl",
             containerClassName,
           )}
         >
           {cards.map((card, i) => (
             <div
               key={card.id}
+              style={{ zIndex: i + 1 }}
               className={cn(
-                "absolute inset-0 h-full w-full rounded-3xl overflow-hidden border-2 border-border shadow-2xl flex flex-col justify-between p-6 sm:p-10 md:p-12",
+                "absolute inset-0 h-full w-full rounded-3xl overflow-hidden border-2 border-border shadow-2xl flex flex-col justify-between p-6 sm:p-8 md:p-10",
                 i % 2 === 0 ? "bg-surface-2" : "bg-surface-3",
                 cardClassName,
               )}
@@ -134,34 +157,34 @@ const StickyCard002 = ({
                 <img
                   src={card.image}
                   alt={card.alt || ""}
-                  className="absolute inset-0 h-full w-full object-cover -z-10 opacity-30"
+                  className="absolute inset-0 h-full w-full object-cover -z-10 opacity-25"
                 />
               )}
 
               {/* Card top banner */}
-              <div className="flex items-center justify-between border-b border-border/80 pb-4">
-                <span className="font-display font-extrabold text-xs sm:text-sm uppercase tracking-wider text-brand px-3 py-1 rounded-full bg-brand/15 border border-brand/30">
+              <div className="flex items-center justify-between border-b border-border/70 pb-3">
+                <span className="font-display font-extrabold text-xs uppercase tracking-wider text-brand px-3 py-1 rounded-full bg-brand/15 border border-brand/30">
                   {card.tag || `PILLAR 0${i + 1}`}
                 </span>
-                <span className="font-mono text-xs sm:text-sm text-muted">
+                <span className="font-mono text-xs text-muted">
                   0{i + 1} / 0{cards.length}
                 </span>
               </div>
 
               {/* Card body */}
-              <div className="my-auto py-6">
+              <div className="my-auto py-4">
                 {card.subtitle && (
                   <p className="font-mono text-xs uppercase tracking-widest text-accent mb-2">
                     {card.subtitle}
                   </p>
                 )}
                 <h3
-                  className="font-display font-extrabold uppercase leading-[0.92] tracking-tight text-ink"
-                  style={{ fontSize: "clamp(26px, 4.5vw, 56px)" }}
+                  className="font-display font-extrabold uppercase leading-[0.95] tracking-tight text-ink"
+                  style={{ fontSize: "clamp(22px, 3.8vw, 48px)" }}
                 >
                   {card.title}
                 </h3>
-                <p className="mt-4 text-muted text-sm sm:text-base md:text-lg max-w-2xl leading-relaxed">
+                <p className="mt-3 text-muted text-xs sm:text-sm md:text-base max-w-2xl leading-relaxed">
                   {card.description}
                 </p>
 
@@ -169,7 +192,7 @@ const StickyCard002 = ({
               </div>
 
               {/* Card bottom metric */}
-              <div className="flex items-center justify-between border-t border-border/80 pt-4 font-mono text-xs text-muted">
+              <div className="flex items-center justify-between border-t border-border/70 pt-3 font-mono text-xs text-muted">
                 {card.metric ? (
                   <div className="flex items-center gap-3">
                     <span className="font-display text-2xl sm:text-3xl font-extrabold text-brand">
@@ -178,9 +201,9 @@ const StickyCard002 = ({
                     <span className="text-[11px] sm:text-xs uppercase">{card.metricLabel}</span>
                   </div>
                 ) : (
-                  <span>FlipGuard Monad Architecture</span>
+                  <span>FlipGuard Monad Defense</span>
                 )}
-                <span className="text-safe flex items-center gap-1.5">
+                <span className="text-safe flex items-center gap-1.5 text-xs font-mono">
                   <span className="h-2 w-2 rounded-full bg-safe pulse-dot" /> ACTIVE
                 </span>
               </div>
