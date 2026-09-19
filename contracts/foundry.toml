@@ -1,0 +1,10 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc = "0.8.28"
+evm_version = "prague"
+remappings = ["@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/"]
+
+[rpc_endpoints]
+monad = "https://testnet-rpc.monad.xyz"
