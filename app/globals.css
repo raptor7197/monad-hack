@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-bg: #0b0f1a;
+  --color-panel: #121829;
+  --color-panel-2: #182038;
+  --color-line: #252e4a;
+  --color-ink: #e8ebf5;
+  --color-dim: #9aa3bf;
+  --color-violet: #8b5cf6;
+  --color-purple: #a855f7;
+  --color-cyan: #22d3ee;
+  --color-safe: #34d399;
+  --color-warn: #fbbf24;
+  --color-threat: #fb7185;
+  --font-sans: var(--font-inter);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgb(139 92 246 / 0.16), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, rgb(34 211 238 / 0.08), transparent 60%),
+    var(--color-bg);
+  background-attachment: fixed;
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.grad-text {
+  background: linear-gradient(90deg, #c4b5fd, #a855f7 45%, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  box-shadow: 0 0 0 1px rgb(168 85 247 / 0.4), 0 8px 24px -8px rgb(168 85 247 / 0.6);
+}
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.pulse-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot { animation: none; }
+}
