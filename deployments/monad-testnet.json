@@ -1,0 +1,15 @@
+{
+  "network": "Monad Testnet",
+  "chainId": 10143,
+  "compiler": "solc 0.8.28",
+  "deployer": null,
+  "deployedAt": null,
+  "minHoldingPeriod": 60,
+  "contracts": {
+    "MockGovernanceToken": { "address": null, "txHash": null, "verified": false },
+    "MockRiskRegistry": { "address": null, "txHash": null, "verified": false },
+    "FlipGuardGovernance": { "address": null, "txHash": null, "verified": false }
+  },
+  "firstProposalId": null,
+  "note": "Fill from contracts/broadcast/*/10143/run-latest.json after deploying. Never fabricate values."
+}
