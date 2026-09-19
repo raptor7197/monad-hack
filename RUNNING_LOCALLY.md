@@ -25,20 +25,35 @@ git clone <your-repo-url> flipguard && cd flipguard
 npm install                      # .npmrc sets legacy-peer-deps (needed by Privy's optional peers)
 
 cd contracts
+# skip if contracts/lib/forge-std and contracts/lib/openzeppelin-contracts already exist
 forge install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts --no-git
 cd ..
 ```
 
 ---
 
-## 2. Run the UI in Demo Preview (no chain needed, ~1 minute)
+## 2. The one env file: `.env`
+
+All config lives in a single git-ignored `.env` at the repo root. Next.js and the Foundry scripts (`npm run deploy` / `npm run seed`) both read it. It holds:
+
+| Variable | What |
+|---|---|
+| `PRIVATE_KEY`, `DEPLOYER_ADDRESS` | Testnet-only deployer wallet |
+| `MIN_HOLDING_PERIOD`, `PROPOSAL_DURATION`, `DEMO_FLAGGED_WALLET` | Script settings |
+| `NEXT_PUBLIC_MONAD_*`, `NEXT_PUBLIC_BLOCK_EXPLORER_URL` | Network |
+| `NEXT_PUBLIC_*_ADDRESS`, `NEXT_PUBLIC_FIRST_PROPOSAL_ID` | Deployed contracts |
+| `NEXT_PUBLIC_DEMO_*_WALLET` | Wallets shown in the risk panel |
+| `NEXT_PUBLIC_PRIVY_APP_ID` | Optional Privy login |
+
+`.env` is never committed. Share it with teammates privately. **Only ever put a testnet key in it.**
+
+## 2.1 Run the UI
 
 ```bash
-cp .env.example .env.local
 npm run dev
 ```
 
-Open http://localhost:3000. With no contract addresses set, the app runs in **Demo Preview**: all fixtures display, voting is disabled, and a yellow header pill says so.
+Open http://localhost:3000. If the contract addresses are empty, the app runs in **Demo Preview** (fixtures only, voting disabled, yellow header pill).
 
 ---
 
@@ -61,35 +76,26 @@ cd .. && npm run abi       # writes lib/abi.ts from contracts/out
 
 ## 4. Deploy to Monad Testnet
 
-### 4.1 Create an encrypted deployer keystore (never paste a raw key anywhere)
+### 4.1 Deployer wallet
+
+Only needed if `.env` has no `PRIVATE_KEY` yet:
 
 ```bash
-cast wallet new                                        # or use an existing hackathon-only wallet
-cast wallet import flipguard-deployer --interactive    # paste key once; stored encrypted in ~/.foundry/keystores
-cast wallet address --account flipguard-deployer
+cast wallet new        # copy Address -> DEPLOYER_ADDRESS and Private key -> PRIVATE_KEY in .env
 ```
 
-Fund that address at https://faucet.monad.xyz, then check:
+Fund it at https://faucet.monad.xyz, then check:
 
 ```bash
-cast balance $(cast wallet address --account flipguard-deployer) --rpc-url https://testnet-rpc.monad.xyz --ether
+cast balance <DEPLOYER_ADDRESS> --rpc-url https://testnet-rpc.monad.xyz --ether
 ```
 
-### 4.2 Optional script settings
+Optional: set `DEMO_FLAGGED_WALLET` in `.env` to a **second MetaMask account you control** so you can press "Vote" as a flagged wallet yourself (also set `NEXT_PUBLIC_DEMO_FLAGGED_WALLET` to the same value).
+
+### 4.2 Deploy
 
 ```bash
-cd contracts
-cp .env.example .env
-set -a; source .env; set +a
-```
-
-- `MIN_HOLDING_PERIOD` (default 60s): how long tokens must be held before a snapshot.
-- `DEMO_FLAGGED_WALLET`: set to a **second MetaMask account you control** if you want to press "Vote" as a flagged wallet yourself. If unset, a derived demo address is used; its rejection still shows in the risk panel.
-
-### 4.3 Deploy
-
-```bash
-forge script script/Deploy.s.sol --rpc-url monad --account flipguard-deployer --broadcast
+npm run deploy
 ```
 
 The script prints:
@@ -103,20 +109,21 @@ Deployer (clean holder): 0x...
 
 It mints 1,000 ATLAS to the deployer (the **clean long-term holder**), mints 250 ATLAS to the flagged wallet and flags it `BORROWING_RISK`.
 
-### 4.4 Seed proposals (wait for the holding period first)
+Copy the three printed addresses into `.env`.
+
+### 4.3 Seed proposals (wait for the holding period first)
 
 Wait at least `MIN_HOLDING_PERIOD` seconds (60 by default) so the deployer counts as a long-term holder, then:
 
 ```bash
-export NEXT_PUBLIC_FLIPGUARD_CONTRACT_ADDRESS=0x...   # from 4.3
-forge script script/Seed.s.sol --rpc-url monad --account flipguard-deployer --broadcast
+npm run seed
 ```
 
 This funds the "recently funded" wallet right before creating three proposals (so it is blocked with `RECENT_ACQUISITION`) and prints `NEXT_PUBLIC_FIRST_PROPOSAL_ID`.
 
 **Demo reset:** run Seed again at any time. It opens three fresh proposals. Update `NEXT_PUBLIC_FIRST_PROPOSAL_ID` to the new value.
 
-### 4.5 Verify the contracts
+### 4.4 Verify the contracts
 
 Use the current Monad guide as the authority: https://docs.monad.xyz/guides/verify-smart-contract/foundry. At the time of writing it verifies through Sourcify:
 
@@ -129,7 +136,7 @@ forge verify-contract <GOV>      src/FlipGuardGovernance.sol:FlipGuardGovernance
 
 Record addresses, tx hashes (from `contracts/broadcast/*/10143/run-latest.json`), compiler (`0.8.28`) and timestamp in `deployments/monad-testnet.json`.
 
-### 4.6 Read-only sanity checks
+### 4.5 Read-only sanity checks
 
 ```bash
 RPC=https://testnet-rpc.monad.xyz
@@ -142,19 +149,7 @@ cast call $NEXT_PUBLIC_FLIPGUARD_CONTRACT_ADDRESS "assessVoter(uint256,address)(
 
 ## 5. Point the UI at the deployment
 
-Edit `.env.local`:
-
-```bash
-NEXT_PUBLIC_FLIPGUARD_CONTRACT_ADDRESS=0x...
-NEXT_PUBLIC_GOVERNANCE_TOKEN_ADDRESS=0x...
-NEXT_PUBLIC_RISK_REGISTRY_ADDRESS=0x...
-NEXT_PUBLIC_FIRST_PROPOSAL_ID=1
-NEXT_PUBLIC_DEMO_CLEAN_WALLET=<deployer address>
-# if you set DEMO_FLAGGED_WALLET for the scripts, use the same value here:
-NEXT_PUBLIC_DEMO_FLAGGED_WALLET=
-```
-
-Restart `npm run dev`. The header pill turns cyan: **Monad Testnet · 10143**.
+Make sure `.env` has `NEXT_PUBLIC_FLIPGUARD_CONTRACT_ADDRESS`, `NEXT_PUBLIC_GOVERNANCE_TOKEN_ADDRESS`, `NEXT_PUBLIC_RISK_REGISTRY_ADDRESS`, `NEXT_PUBLIC_FIRST_PROPOSAL_ID` and `NEXT_PUBLIC_DEMO_CLEAN_WALLET` (= deployer), then restart `npm run dev`. The header pill turns cyan: **Monad Testnet · 10143**.
 
 ---
 
@@ -168,7 +163,7 @@ Import the deployer key into MetaMask (Account → Import account) to vote as th
 ### Privy
 1. Create an app at https://dashboard.privy.io.
 2. In the app's allowed domains, add `http://localhost:3000` (and your hosted URL later).
-3. Set `NEXT_PUBLIC_PRIVY_APP_ID=<app id>` in `.env.local` and restart.
+3. Set `NEXT_PUBLIC_PRIVY_APP_ID=<app id>` in `.env` and restart.
 
 The header then shows **Log in**. Privy's modal offers MetaMask, detected wallets, WalletConnect, email and Google. Email/Google users get an embedded wallet; fund it with test MON before voting.
 
@@ -202,10 +197,11 @@ On Vercel/Netlify, set the same `NEXT_PUBLIC_*` variables in the host dashboard.
 | Symptom | Fix |
 |---|---|
 | `ERESOLVE` on `npm install` | Make sure `.npmrc` (`legacy-peer-deps=true`) is present. |
-| Header says *Demo Preview* | `NEXT_PUBLIC_FLIPGUARD_CONTRACT_ADDRESS` is empty/invalid. Restart the dev server after editing `.env.local`. |
+| Header says *Demo Preview* | `NEXT_PUBLIC_FLIPGUARD_CONTRACT_ADDRESS` is empty/invalid. Restart the dev server after editing `.env`. |
 | "Proposal not found onchain" | Run `Seed.s.sol`, or fix `NEXT_PUBLIC_FIRST_PROPOSAL_ID`. |
 | Deployer shows *Recent Token Acquisition* | You seeded before `MIN_HOLDING_PERIOD` elapsed. Wait, then run Seed again. |
 | "Not enough MON for gas" | https://faucet.monad.xyz |
 | Privy "Invalid Privy app ID" / origin error | Check the app id and allowed domains in the Privy dashboard. |
 | Protection log misses old votes | It scans only the latest ~2,000 blocks (RPC log-range limits). Recent demo activity always shows. |
-| `forge script` "environment variable not found" | `export NEXT_PUBLIC_FLIPGUARD_CONTRACT_ADDRESS=...` before running Seed. |
+| `npm run seed` "environment variable not found" | Put `NEXT_PUBLIC_FLIPGUARD_CONTRACT_ADDRESS` in `.env` first. |
+| Console: `ObjectMultiplex - orphaned data for stream "metamask-multichain-provider"` | Harmless MetaMask extension (Firefox) log noise, not an app error. Ignore it. |

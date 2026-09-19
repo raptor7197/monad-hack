@@ -2,14 +2,37 @@
   "network": "Monad Testnet",
   "chainId": 10143,
   "compiler": "solc 0.8.28",
-  "deployer": null,
-  "deployedAt": null,
+  "deployer": "0x9728fB3058843CC6736a0B13551c53FF8070E868",
+  "deployedAt": "2026-09-19",
   "minHoldingPeriod": 60,
   "contracts": {
-    "MockGovernanceToken": { "address": null, "txHash": null, "verified": false },
-    "MockRiskRegistry": { "address": null, "txHash": null, "verified": false },
-    "FlipGuardGovernance": { "address": null, "txHash": null, "verified": false }
+    "MockGovernanceToken": {
+      "address": "0xFc7713f3af49D59C0b76D1d87E2c11BB2E29ddbF",
+      "txHash": "0xf87c70cada87db41310779366cdde056b743f5db36d9ef72ce7d373390a5f062",
+      "verified": true
+    },
+    "MockRiskRegistry": {
+      "address": "0x1d6B5b0d67B00bb7F1066B97B89F4CA290b1fD10",
+      "txHash": "0xf2e069fdb25dce318642d9a7ea58a3e649ec94b12f8c3ac087432fae27769fcd",
+      "verified": true
+    },
+    "FlipGuardGovernance": {
+      "address": "0x4F9f04C3E913F418a656DB14003c63ea97653F92",
+      "txHash": "0x765832f1efbc9f5233937116c48f5dbed23b7586cc35ed845cb1d9e68f2f2dd4",
+      "verified": false,
+      "verifyNote": "Sourcify no_match: runtime identical, metadata hash differs. Retry per RUNNING_LOCALLY.md 4.4."
+    }
   },
-  "firstProposalId": null,
-  "note": "Fill from contracts/broadcast/*/10143/run-latest.json after deploying. Never fabricate values."
+  "demoWallets": {
+    "clean": "0x9728fB3058843CC6736a0B13551c53FF8070E868",
+    "recentlyFunded": "0xFDCD81627F670A939C7dB68915429539C8f26e19",
+    "borrowingRiskFlagged": "0x4aa6c631C647b46e6D1BC93f808DD79EA1C851E8"
+  },
+  "firstProposalId": 1,
+  "seedTxs": [
+    "0x45865567db887f50238a765b37049af63210931a4481675d9f4da3195be0ca0a",
+    "0xfc9e86706dbf880b83b9823281454eb0e1595d4181cabd25bd51a74ecae33cab",
+    "0x2deae48729cb190b82e61a655b191a273d62a65b580fc5e163e28913acfd3f1e",
+    "0xe72d1f6d92b876e26f5c6dea5c3e9e8a5cf4c53f1c8add2a6d219663cf13d48a"
+  ]
 }

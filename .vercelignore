@@ -1,0 +1,6 @@
+.env
+.env*
+contracts
+node_modules
+.next
+*.keystore

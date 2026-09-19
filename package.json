@@ -8,11 +8,13 @@
     "start": "next start",
     "lint": "eslint",
     "abi": "node scripts/gen-abi.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy": "set -a && . ./.env && set +a && cd contracts && forge script script/Deploy.s.sol --rpc-url monad --private-key $PRIVATE_KEY --broadcast",
+    "seed": "set -a && . ./.env && set +a && cd contracts && forge script script/Seed.s.sol --rpc-url monad --private-key $PRIVATE_KEY --broadcast"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
-    "@privy-io/react-auth": "^3.44.0",
+    "@privy-io/react-auth": "^3.6.1",
     "@privy-io/wagmi": "^4.0.17",
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
