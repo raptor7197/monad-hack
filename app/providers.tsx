@@ -24,7 +24,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultChain: monadTestnet,
         supportedChains: [monadTestnet],
         loginMethods: ["wallet", "email", "google"],
-        appearance: { theme: "#0b0f1a", accentColor: "#8b5cf6", walletList: ["metamask", "detected_wallets", "wallet_connect"] },
+        appearance: { theme: "#0b0f1a", accentColor: "#9d75cb", walletList: ["metamask", "detected_wallets", "wallet_connect"] },
         embeddedWallets: { ethereum: { createOnLogin: "users-without-wallets" } },
       }}
     >

@@ -4,36 +4,38 @@
   --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: var(--font-syne), "Syne", sans-serif;
 
-  /* Palette: Intense Cherry, Sunflower Gold, Black, Eggshell */
-  --color-cherry: #ad343e;
-  --color-cherry-hover: #962d35;
-  --color-gold: #f2af29;
-  --color-gold-hover: #dba01f;
-  --color-black: #000000;
-  --color-eggshell: #e0e0ce;
+  /* Custom Palette: Neon Grass, Aquamarine, Lavender Purple on near-black navy */
+  --color-bg: #0b0f1a;
+  --color-surface: #131629;
+  --color-surface-2: #1b1e35;
+  --color-surface-3: #26203f;
+  --color-border: rgba(157, 117, 203, 0.28);
+  --color-border-strong: #9d75cb;
+  --color-ink: #eef4ff;
+  --color-muted: #a7b0cf;
 
-  /* Semantic tokens — dark theme defaults (overridden by .light) */
-  --color-bg: #0a0a0a;
-  --color-surface: #141414;
-  --color-surface-2: #1e1e1e;
-  --color-surface-3: #2a2a2a;
-  --color-border: rgba(224, 224, 206, 0.12);
-  --color-border-strong: rgba(224, 224, 206, 0.25);
-  --color-ink: #e0e0ce;
-  --color-muted: #a8a898;
+  /* Palette mappings */
+  --color-chartreuse: #ceff1a;
+  --color-palm: #aaa95a;
+  --color-olive: #82816d;
+  --color-indigo: #414066;
+  --color-jet: #1b2d2a;
+  --color-neon-grass: #5aff15;
+  --color-aquamarine: #aaffe5;
+  --color-lavender: #9d75cb;
 
   /* Brand accents */
-  --color-brand: #f2af29;
-  --color-brand-hover: #dba01f;
-  --color-brand-contrast: #0a0a0a;
-  --color-accent: #ad343e;
-  --color-accent-contrast: #ffffff;
-  --color-secondary-block: #1e1e1e;
+  --color-brand: #9d75cb;
+  --color-brand-hover: #b08fe0;
+  --color-brand-contrast: #0b0f1a;
+  --color-accent: #aaffe5;
+  --color-accent-contrast: #0b0f1a;
+  --color-secondary-block: #26203f;
 
   /* Status tokens */
-  --color-safe: #4ade80;
-  --color-warn: #f2af29;
-  --color-threat: #ad343e;
+  --color-safe: #5aff15;
+  --color-warn: #eab308;
+  --color-threat: #f43f5e;
 
   /* Semantic aliases */
   --color-panel: var(--color-surface);
@@ -41,7 +43,7 @@
   --color-line: var(--color-border);
   --color-dim: var(--color-muted);
   --color-violet: var(--color-brand);
-  --color-cyan: var(--color-accent);
+  --color-cyan: var(--color-aquamarine);
 }
 
 html {
@@ -54,23 +56,23 @@ html.dark {
 
 html.light {
   color-scheme: light;
-  --color-bg: #f5f5ec;
+  --color-bg: #f4f5ec;
   --color-surface: #ffffff;
-  --color-surface-2: #eeeee2;
-  --color-surface-3: #ddddd0;
+  --color-surface-2: #eeeee0;
+  --color-surface-3: #e0e0d4;
   --color-border: rgba(0, 0, 0, 0.1);
   --color-border-strong: rgba(0, 0, 0, 0.2);
-  --color-ink: #111111;
+  --color-ink: #1b2d2a;
   --color-muted: #5a5a4e;
-  --color-brand: #ad343e;
-  --color-brand-hover: #962d35;
+  --color-brand: #414066;
+  --color-brand-hover: #333354;
   --color-brand-contrast: #ffffff;
-  --color-accent: #c78820;
+  --color-accent: #82816d;
   --color-accent-contrast: #ffffff;
-  --color-secondary-block: #eeeee2;
+  --color-secondary-block: #eeeee0;
   --color-safe: #16a34a;
   --color-warn: #c78820;
-  --color-threat: #ad343e;
+  --color-threat: #c42b2b;
 }
 
 body {
@@ -110,14 +112,18 @@ body {
   background: var(--color-muted);
 }
 
+.grad-text {
+  background: linear-gradient(90deg, #eef4ff, #aaffe5 35%, #9d75cb 70%, #5aff15);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .btn-primary {
   background: var(--color-brand);
   color: var(--color-brand-contrast);
   font-weight: 800;
-  box-shadow: 0 4px 18px 0 rgba(242, 175, 41, 0.2);
-}
-html.light .btn-primary {
-  box-shadow: 0 4px 18px 0 rgba(173, 52, 62, 0.18);
+  box-shadow: 0 4px 18px 0 rgba(157, 117, 203, 0.4);
 }
 .btn-primary:hover:not(:disabled) {
   background: var(--color-brand-hover);

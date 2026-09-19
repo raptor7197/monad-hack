@@ -249,7 +249,7 @@ export function Beams({
   beamNumber = 39,
   lightColor = "#ffffff",
   beamColor = "#000000",
-  backgroundColor = "#1b2d2a",
+  backgroundColor = "#0b0f1a",
   speed = 2,
   noiseIntensity = 1.75,
   scale = 0.2,
