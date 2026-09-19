@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { usePrivy } from "@privy-io/react-auth";
 import gsap from "gsap";
-import { Menu, X, ShieldCheck, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowUpRight } from "lucide-react";
 import { useMounted } from "@/lib/use-mounted";
 import { monadTestnet, privyAppId } from "@/lib/monad";
-import { isLive } from "@/lib/contracts";
 import { short } from "./ui";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -18,9 +18,14 @@ function Logo() {
       href="/"
       className="flex items-center gap-2.5 px-4 md:px-6 py-3 font-display font-extrabold text-lg md:text-xl tracking-tight text-ink hover:text-brand transition-colors whitespace-nowrap"
     >
-      <span className="grid h-7 w-7 place-items-center rounded bg-brand text-brand-contrast">
-        <ShieldCheck className="h-4 w-4" />
-      </span>
+      <Image
+        src="/logo.png"
+        alt="FlipGuard"
+        width={235}
+        height={254}
+        priority
+        className="h-7 w-auto"
+      />
       <span>FLIPGUARD</span>
     </Link>
   );
