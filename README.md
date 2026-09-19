@@ -1,6 +1,12 @@
-# flipguard
+# FlipGuard
 
-onchain governance protection for monad testnet. flipguard blocks last minute voting power grabs before they can swing a proposal.
+> **Fair votes. Stronger governance.**  
+> Onchain governance protection for Monad Testnet. FlipGuard blocks last-minute voting power grabs before they can swing a proposal.
+
+**Live Application:** [https://flipguard.younix.xyz/](https://flipguard.younix.xyz/)  
+**Network:** Monad Testnet (Chain ID `10143`)
+
+![FlipGuard Platform Preview](public/hero-preview.png)
 
 ## the problem
 
@@ -86,8 +92,9 @@ key details:
 
 monad testnet, chain id `10143`. full record in `deployments/monad-testnet.json`.
 
-| contract | address |
+| resource | address / url |
 |---|---|
+| **Live App** | [https://flipguard.younix.xyz/](https://flipguard.younix.xyz/) |
 | `FlipGuardGovernance` | `0x4F9f04C3E913F418a656DB14003c63ea97653F92` |
 | `MockRiskRegistry` | `0x1d6B5b0d67B00bb7F1066B97B89F4CA290b1fD10` |
 | `MockGovernanceToken` | `0xFc7713f3af49D59C0b76D1d87E2c11BB2E29ddbF` |
