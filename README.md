@@ -1,227 +1,228 @@
-# FlipGuard 🛡️
+# flipguard
 
-> **"Stop flash-loan attacks on onchain governance — before they swing a vote."**
+onchain governance protection for monad testnet. flipguard blocks last minute voting power grabs before they can swing a proposal.
 
-FlipGuard is a production-deployed onchain governance security layer on **Monad Testnet** that prevents last-minute voting-power manipulation. Every vote is verified against three independent onchain checkpoints before it is accepted into the tally.
+## the problem
 
----
+dao votes are often decided in the final hours. an attacker can borrow a large amount of governance tokens, vote on a malicious proposal, and repay the loan in the same transaction. standard `erc20votes` checkpoints only track balances, not when the tokens arrived, so a wallet funded seconds before a snapshot looks the same as a long term holder.
 
-## The Pitch
+flipguard closes that window at the contract level. no backend, no oracle, no off chain bot needed to enforce it.
 
-### Problem
+## how it works
 
-DAO governance votes are increasingly decided in the final hours before close. An attacker can:
+every vote must pass three independent onchain checks before it is counted:
 
-1. **Borrow** millions in governance tokens via a flash loan
-2. **Vote** on a malicious proposal at the last second
-3. **Repay** the loan in the same transaction
+1. snapshot weight. `token.getPastVotes(voter, snapshot)` must be greater than zero. tokens bought after the snapshot do not count.
+2. minimum holding period. `token.lastAcquiredAt(voter) + minHoldingPeriod` must be at or before the snapshot. tokens that arrived inside the window are rejected.
+3. risk registry. `registry.riskOf(voter)` must be `NONE`. an authorized monitor flags wallets, and the contract rejects any flagged wallet.
 
-By the time the DAO notices, the proposal has passed and the treasury is gone. This isn't theoretical — it has happened on Ethereum, Solana, and BSC.
+a blocked vote reverts with `VoteBlocked(reason)`. a reverted transaction keeps no events, so the frontend uses the `assessVoter` view function as a free preflight. the wallet is never asked to sign a vote that would fail, so no gas is wasted.
 
-**Why existing solutions fail:**
-- Standard `ERC20Votes` checkpoints only verify current balance, not *when* tokens arrived
-- Off-chain monitoring is too slow and can't enforce onchain
-- Generic governance modules have no concept of "borrowing risk" or "holding periods"
-- Wallets funded moments before a snapshot are indistinguishable from long-term holders
+`assessVoter(id, voter)` returns four values in one call:
 
-### Solution
-
-FlipGuard introduces **three independent onchain gates** that every vote must pass before being counted:
-
-| Gate | Mechanism | Revert Reason |
-|---|---|---|
-| **Checkpoint Snapshot** | `ERC20Votes.getPastVotes(voter, snapshot)` | `NO_VOTING_POWER` |
-| **Minimum Holding Period** | `lastAcquiredAt[voter] > snapshot - holdingPeriod` | `RECENT_ACQUISITION` |
-| **Risk Registry** | `MockRiskRegistry.isFlagged(voter)` | `RISK_FLAGGED` |
-
-An open `assessVoter()` view function exposes the same logic as a **free preflight** — the UI halts before any transaction is signed and shows the exact revert reason. Voters never waste gas on rejected attempts.
-
-### Why Monad
-
-- **400ms block times** mean vote enforcement and user feedback feel instantaneous, even during end-of-vote rushes
-- **10,000 TPS parallel execution** handles governance surges without congestion
-- **Full EVM compatibility** means we reuse OpenZeppelin's battle-tested `ERC20Votes` unchanged
-- **Monad's gas model** charges by `gas_limit`, not `gas_used` — enabling precise gas budgeting for governance preflight calls
-
-### Market Opportunity
-
-- $18B+ in DAO treasuries are governed by vulnerable voting mechanisms
-- The average governance attack window is **4–8 hours** — the exact window FlipGuard closes
-- Any ERC20-based DAO, GovernorBravo, or Compound-style protocol is a potential customer
-- FlipGuard is **chain-agnostic** — the same architecture deploys to Ethereum, BSC, or any EVM chain
-
-### Business Model
-
-- **B2B SaaS**: FlipGuard as an audited upgrade module for DAOs (annual licensing)
-- **Risk Oracle Network**: Decentralized monitors feed the onchain risk registry (token staking economics)
-- **Insurance Layer**: Protocols pay a premium to cover governance attack incidents (covered by FlipGuard's deterministic enforcement)
-
-### Competitive Moat
-
-- **14 Foundry tests** covering snapshot weight, transfer timing, holding period boundaries, flag/clear, duplicate votes, and fuzzing
-- **Zero external dependencies** at runtime — no oracles, no indexers, no backend
-- **Modular design** — flip in any `ERC20Votes`-compatible token or risk registry
-- **Monad-native** — first mover on a chain with 400ms blocks and 10k TPS
-
----
-
-## Live on Monad Testnet
-
-| Contract | Address |
-|---|---|
-| **FlipGuardGovernance** | `0x4F9f04C3E913F418a656DB14003c63ea97653F92` |
-| **MockRiskRegistry** | `0x1d6B5b0d67B00bb7F1066B97B89F4CA290b1fD10` |
-| **MockGovernanceToken** | `0xFc7713f3af49D59C0b76D1d87E2c11BB2E29ddbF` |
-
-Network: **Monad Testnet (Chain ID 10143)** · Deployed: **2026-09-19**
-
----
-
-## Architecture
-
-```
-User Wallet (MetaMask / Privy)
-         │
-         ▼
-┌─────────────────────────┐
-│   Next.js 16 (React 19) │
-│   wagmi · viem · GSAP    │
-│   Tailwind CSS v4        │
-│   @react-three/fiber     │
-└────────────┬────────────┘
-             │ read / write
-             ▼
-┌─────────────────────────────────────┐
-│       FlipGuardGovernance            │
-│  assessVoter(id, voter) → [eligible,  │
-│  weight, reasonIdx, riskIdx]         │
-│                                     │
-│  castVote(id, support)               │
-│  ─ checks snapshot ─ holding period ─ │
-│  ─ risk registry ─ already voted ─   │
-└───────┬─────────────────┬───────────┘
-        │                 │
-        ▼                 ▼
-┌──────────────┐  ┌─────────────────┐
-│MockGovernance│  │ MockRiskRegistry │
-│Token         │  │                 │
-│(ERC20Votes)  │  │ isFlagged(wallet)│
-│lastAcquiredAt│  │ monitor role    │
-│checkpoints   │  │ RiskFlagUpdated │
-└──────────────┘  └─────────────────┘
+```text
+eligible  bool
+weight    uint256
+reason    Reason
+risk      MockRiskRegistry.Risk
 ```
 
-**No backend. No indexer. No oracle. 100% onchain.**
+`castVote` runs the same checks and then enforces one vote per wallet through `hasVoted`.
 
----
+### revert reasons
 
-## Smart Contracts (`contracts/src`)
+the `Reason` enum is the index used across the contract and the ui.
 
-| Contract | LOC | Purpose |
+| index | code | meaning |
 |---|---|---|
-| `FlipGuardGovernance.sol` | ~106 | Proposal creation, vote casting, voter assessment, revert reasons |
-| `MockGovernanceToken.sol` | ~80 | ERC20Votes with `lastAcquiredAt` tracking, owner mint |
-| `MockRiskRegistry.sol` | ~60 | Monitor role-based risk flagging, `RiskFlagUpdated` events |
+| 0 | `ELIGIBLE` | passes every check |
+| 1 | `NO_PROPOSAL` | proposal id does not exist yet |
+| 2 | `NOT_ACTIVE` | outside the voting window |
+| 3 | `ALREADY_VOTED` | this wallet already voted |
+| 4 | `NO_VOTING_POWER` | zero checkpointed weight at snapshot |
+| 5 | `RISK_FLAGGED` | monitor flagged the wallet |
+| 6 | `RECENT_ACQUISITION` | tokens arrived inside the holding window |
 
-**14 Foundry tests** covering:
-- Snapshot weight enforcement
-- Transfer-after-snapshot disqualification
-- Holding period boundary conditions
-- Risk flag setting and clearing
-- Duplicate vote rejection
-- Access control (`onlyOwner`, `monitor` role)
-- Fuzzing on `assessVoter` inputs
+## architecture
 
----
+```mermaid
+flowchart TD
+  user[user wallet] -->|connect and login| app[next.js frontend]
+  app -->|assessVoter read| gov[flipguard governance]
+  app -->|castVote write| gov
+  gov -->|getPastVotes and lastAcquiredAt| token[mock governance token]
+  gov -->|riskOf| reg[mock risk registry]
+  monitor[risk monitor] -->|setRisk| reg
+  app -->|blocked attempts| browser[browser storage]
+```
 
-## Tech Stack
+- `user` is a metamask wallet or a privy embedded wallet.
+- `app` is the next.js frontend. it reads state with viem and writes with wagmi.
+- `gov` is `FlipGuardGovernance`. it holds proposals, tallies, and all guard logic.
+- `token` is `MockGovernanceToken`, an `erc20votes` token with a `lastAcquiredAt` stamp per wallet.
+- `reg` is `MockRiskRegistry`, a monitor role plus a per wallet risk flag.
+- `monitor` writes flags. in the demo it is simulated.
+- `browser` keeps a local list of blocked preflight attempts for the dashboard, since reverted votes leave no onchain trace.
 
-| Layer | Technology |
+## contracts
+
+sources live in `contracts/src`.
+
+| file | role |
 |---|---|
-| **Frontend** | Next.js 16 · React 19 · TypeScript |
-| **Styling** | Tailwind CSS v4 · Custom CSS variables · GSAP |
-| **3D / Effects** | Three.js · @react-three/fiber · @react-three/drei |
-| **Animations** | GSAP · ScrollTrigger · React Lenis |
-| **Web3** | wagmi v3 · viem v2 · Privy Auth |
-| **Contracts** | Solidity ^0.8.24 · Foundry · OpenZeppelin |
-| **Testing** | Foundry fuzzing · 14 test cases |
+| `FlipGuardGovernance.sol` | proposals, `assessVoter`, `castVote`, revert reasons, `minHoldingPeriod` |
+| `MockGovernanceToken.sol` | `erc20` + `erc20permit` + `erc20votes`, owner mint, timestamp checkpoints, `lastAcquiredAt`, auto self delegate |
+| `MockRiskRegistry.sol` | monitor role, `setRisk`, `riskOf`, `RiskFlagUpdated` events |
 
----
+key details:
 
-## UI Sections
+- the snapshot is taken in `createProposal`. voting opens one second later and runs for `duration` seconds.
+- the token uses timestamp based checkpoints, so `block.timestamp` is the clock.
+- a holder is delegated to itself on first receipt, which keeps the demo wallets simple.
+- `lastAcquiredAt` only records when tokens last arrived. it does not know if they came from a loan or a purchase. it only enables the holding period rule.
+- the governance contract is `Ownable` and only the owner can change `minHoldingPeriod`.
 
-| Page | Description |
+## deployments
+
+monad testnet, chain id `10143`. full record in `deployments/monad-testnet.json`.
+
+| contract | address |
 |---|---|
-| `/` | Hero with 3D Beams, defense simulator slider, code playground, approach, FAQ, proposals |
-| `/proposals/[id]` | Live voting panel, onchain tally, voter risk assessments, activity timeline |
-| `/dashboard` | Full protection audit log with contract event stream |
-| `/slides` | Full-page pitch deck with pinned GSAP ScrollTrigger pillar cards |
+| `FlipGuardGovernance` | `0x4F9f04C3E913F418a656DB14003c63ea97653F92` |
+| `MockRiskRegistry` | `0x1d6B5b0d67B00bb7F1066B97B89F4CA290b1fD10` |
+| `MockGovernanceToken` | `0xFc7713f3af49D59C0b76D1d87E2c11BB2E29ddbF` |
 
----
+`minHoldingPeriod` is 60 seconds on the deployed instance.
 
-## Team
+## frontend
 
-> Add your names here.
+app router pages:
 
-Built during **Monad Blitz Mumbai** · September 2026
+| route | what it shows |
+|---|---|
+| `/` | hero, stats, defense simulator, code playground, approach, proposals, protection log, faq |
+| `/proposals/[id]` | live voting panel, onchain tally, per wallet risk checks, activity |
+| `/dashboard` | deployed contracts, full protection log, local blocked attempt list |
+| `/slides` | pitch deck with gsap scrolltrigger pinned cards |
+| `/ppt` | plain presentation view of the same content |
 
----
+notable modules:
 
-## Reference Statements for the Pitch
+- `lib/contracts.ts` reads all addresses from env, maps the `Reason` and `Risk` enums to ui tones, and derives demo wallets when env is missing.
+- `lib/monad.ts` defines the monad testnet chain and the wagmi and privy configs.
+- `lib/session-log.ts` stores blocked preflight attempts in `localStorage`.
+- `data/mock-data.ts` holds deterministic demo fixtures for proposals, wallets, and the timeline. every record is simulated.
+- `lib/abi.ts` is generated by `scripts/gen-abi.mjs` from `contracts/out`. do not edit it by hand.
 
-### "FlipGuard is the only onchain solution that enforces holding periods and borrowing risk at the contract level — not off-chain."
+## tech stack
 
-> Most governance attacks rely on speed. FlipGuard's `minHoldingPeriod` makes timing attacks structurally impossible by rejecting any wallet that received tokens within the observation window. This is enforced by `FlipGuardGovernance.castVote()` — not by a monitoring bot or an oracle.
+| layer | tools |
+|---|---|
+| frontend | next.js 16, react 19, typescript |
+| styling | tailwind css v4, css variables |
+| motion and 3d | gsap, scrolltrigger, three.js, `@react-three/fiber`, `@react-three/drei`, lenis |
+| web3 | wagmi, viem, privy (optional) |
+| contracts | solidity `^0.8.24`, foundry, openzeppelin, solc 0.8.28 |
+| testing | foundry, fuzzing |
 
-### "We deployed to Monad Testnet before anyone else built governance tooling on it."
+## repo layout
 
-> Our contracts are live at `0x4F9f04C3E913F418a656DB14003c63ea97653F92` on chain `10143`. Any wallet can interact with them right now. No private testnet, no demo mode — this is production code on a live chain.
+```text
+app/                  next.js routes and global styles
+components/            ui sections, voting panel, risk assessment, header, footer
+data/mock-data.ts      deterministic demo fixtures
+lib/                   abi, contract reads, chain config, session log, utils
+contracts/src          solidity sources
+contracts/script       deploy and seed foundry scripts
+contracts/test         foundry tests
+deployments/           deployed addresses per network
+scripts/gen-abi.mjs    regenerates lib/abi.ts from forge output
+public/                logo and static assets
+```
 
-### "A voter never wastes gas on a rejected vote."
-
-> `assessVoter()` is a `view` function. The UI calls it before the wallet ever opens. If the vote is blocked, the user sees the exact `VoteBlocked(reason)` reason — `RECENT_ACQUISITION`, `RISK_FLAGGED`, `NO_VOTING_POWER` — without signing anything.
-
-### "We have 14 Foundry tests including fuzzing, covering every edge case."
-
-> Snapshot weight enforcement, holding window boundaries, monitor role revocations, duplicate votes, zero-weight voters, and more — all tested with Foundry's invariant and fuzzing harnesses. The contract does not silently pass invalid votes.
-
-### "The architecture is chain-agnostic — the same pattern deploys to Ethereum, BSC, or any EVM chain."
-
-> FlipGuard depends only on `ERC20Votes` (OpenZeppelin) and an optional risk registry interface. Swap `MockGovernanceToken` for any existing governance token — the guard logic stays identical.
-
-### "Monad's 400ms blocks make governance enforcement feel instant."
-
-> On Ethereum, a failed vote transaction costs gas andConfirmation time. On Monad, the `assessVoter()` preflight returns in milliseconds, and confirmed votes settle in under a second. End-of-vote rushes don't cause congestion.
-
----
-
-## Setup
+## run locally
 
 ```bash
-# Install dependencies
+# install
 npm install
 
-# Start dev server
+# dev server
 npm run dev
 
-# Deploy contracts (requires .env — see RUNNING_LOCALLY.md)
+# contracts, requires .env
 npm run deploy
 npm run seed
 
-# Run contract tests
-cd contracts && forge test
+# regenerate lib/abi.ts after contract changes
+npm run abi
 
-# Run all checks
-npm run typecheck && npm run lint && npm run build
+# checks
+npm run typecheck
+npm run lint
+npm run build
+
+# foundry tests
+cd contracts && forge test
 ```
 
-Full environment setup instructions: [`RUNNING_LOCALLY.md`](RUNNING_LOCALLY.md)
+`npm run deploy` and `npm run seed` read `.env` and broadcast to monad testnet. run `seed` after the holding period has passed so the demo proposals open correctly. a full walkthrough is in `RUNNING_LOCALLY.md`.
 
----
+## environment
 
-## Security Notes
+one `.env` file is shared by next.js and the foundry scripts. it is git ignored.
 
-- Owner mint on `MockGovernanceToken` is **demo-only** — not for production
-- Admin functions (`setMinHoldingPeriod`, `setRisk`, `setMonitor`) use `onlyOwner` / role checks
-- No `tx.origin`, no upgradeability, no external calls beyond trusted token/registry reads
-- Blocked transactions produce no events — use the `assessVoter` preflight for UX feedback
+```text
+PRIVATE_KEY                              deployer key, testnet only
+DEPLOYER_ADDRESS
+MIN_HOLDING_PERIOD
+PROPOSAL_DURATION
+NEXT_PUBLIC_MONAD_RPC_URL
+NEXT_PUBLIC_MONAD_CHAIN_ID
+NEXT_PUBLIC_BLOCK_EXPLORER_URL
+NEXT_PUBLIC_FLIPGUARD_CONTRACT_ADDRESS
+NEXT_PUBLIC_GOVERNANCE_TOKEN_ADDRESS
+NEXT_PUBLIC_RISK_REGISTRY_ADDRESS
+NEXT_PUBLIC_FIRST_PROPOSAL_ID
+NEXT_PUBLIC_DEMO_CLEAN_WALLET
+NEXT_PUBLIC_DEMO_FLAGGED_WALLET
+NEXT_PUBLIC_DEMO_RECENT_WALLET
+NEXT_PUBLIC_DEMO_VOTED_WALLET
+NEXT_PUBLIC_PRIVY_APP_ID
+```
+
+if `NEXT_PUBLIC_PRIVY_APP_ID` is set the header uses privy login. if it is empty the header connects to metamask directly. if the contract addresses are empty the ui hides the live tally and shows the demo fixtures instead.
+
+## tests
+
+`contracts/test/FlipGuardGovernance.t.sol` has 14 tests covering:
+
+- clean holder votes once and the against vote counts
+- flagged holder is blocked, and clearing the flag restores eligibility
+- recent acquisition is blocked
+- a transfer after the snapshot adds no weight
+- zero power wallets are blocked
+- voting window boundaries
+- proposal created event and zero duration revert
+- monitor only can set risk, owner only admin
+- fuzzing on unknown proposals and window boundaries
+
+## security notes
+
+- `MockGovernanceToken` owner mint is demo only. it is not a production token.
+- admin functions use owner or monitor checks. there is no upgradeability and no `tx.origin`.
+- blocked votes produce no onchain events. the dashboard log is local to the browser on purpose.
+- the risk monitor is simulated in this demo. the registry stores flags, it does not detect anything by itself.
+
+## demo wallets
+
+the seed script funds a recently active wallet and the deploy script flags a borrowing risk wallet. the ui maps three states for the demo:
+
+| wallet | expected result |
+|---|---|
+| clean holder | `ELIGIBLE` |
+| recently funded | `RECENT_ACQUISITION` |
+| flagged wallet | `RISK_FLAGGED` |
+
+## built for
+
+monad blitz mumbai, september 2026.
