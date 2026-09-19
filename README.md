@@ -71,9 +71,9 @@ No backend, database or indexer.
 
 | Contract | Address | Explorer |
 |---|---|---|
-| FlipGuardGovernance | _TBD after deploy_ | — |
-| MockRiskRegistry | _TBD after deploy_ | — |
-| MockGovernanceToken | _TBD after deploy_ | — |
+| FlipGuardGovernance | `0x4F9f04C3E913F418a656DB14003c63ea97653F92` | [view](https://testnet.monadexplorer.com/address/0x4F9f04C3E913F418a656DB14003c63ea97653F92) |
+| MockRiskRegistry | `0x1d6B5b0d67B00bb7F1066B97B89F4CA290b1fD10` | [view](https://testnet.monadexplorer.com/address/0x1d6B5b0d67B00bb7F1066B97B89F4CA290b1fD10) (verified) |
+| MockGovernanceToken | `0xFc7713f3af49D59C0b76D1d87E2c11BB2E29ddbF` | [view](https://testnet.monadexplorer.com/address/0xFc7713f3af49D59C0b76D1d87E2c11BB2E29ddbF) (verified) |
 
 Details: [`deployments/monad-testnet.json`](deployments/monad-testnet.json).
 
@@ -84,28 +84,28 @@ Full step-by-step instructions are in **[RUNNING_LOCALLY.md](RUNNING_LOCALLY.md)
 ```bash
 npm install
 (cd contracts && forge install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts --no-git && forge test)
-cp .env.example .env.local
+# create .env (see RUNNING_LOCALLY.md §2)
 npm run dev
 ```
 
 ### Environment variables
 
-See [`.env.example`](.env.example) (frontend, all public) and [`contracts/.env.example`](contracts/.env.example) (scripts). Placeholders only.
+One git-ignored `.env` at the repo root holds everything (see [RUNNING_LOCALLY.md §2](RUNNING_LOCALLY.md)).
 
 ### Commands
 
 | Task | Command |
 |---|---|
 | Contract build / test | `cd contracts && forge build && forge test` |
-| Deploy | `forge script script/Deploy.s.sol --rpc-url monad --account <keystore> --broadcast` |
-| Seed / reset demo | `forge script script/Seed.s.sol --rpc-url monad --account <keystore> --broadcast` |
+| Deploy | `npm run deploy` |
+| Seed / reset demo | `npm run seed` |
 | Regenerate ABI | `npm run abi` |
 | Dev server | `npm run dev` |
 | Checks | `npm run typecheck && npm run lint && npm run build` |
 
 ## Security considerations
 
-- No private keys in the repo; deployment uses an encrypted Foundry keystore. `.env*` (except examples), keystores and broadcast output are git-ignored.
+- No private keys in the repo. The testnet-only deployer key lives in the git-ignored `.env`; broadcast output is git-ignored too.
 - Admin functions (`mint`, `setMonitor`, `setMinHoldingPeriod`) are `onlyOwner`; `setRisk` requires the monitor role.
 - No `tx.origin`, no upgradeability, no external calls beyond trusted token/registry reads.
 - The token's unrestricted owner mint exists for the demo only. Do not reuse it in production.

@@ -8,3 +8,6 @@ remappings = ["@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/"]
 
 [rpc_endpoints]
 monad = "https://testnet-rpc.monad.xyz"
+
+[lint]
+lint_on_build = false
